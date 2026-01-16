@@ -15,6 +15,20 @@ DATA_DIR = Path(__file__).parent.parent / 'data'
 DATA_DIR.mkdir(exist_ok=True)
 CHANNELS_FILE = DATA_DIR / 'channels.json'
 SEASONS_FILE = DATA_DIR / 'seasons.json'
+UPLOAD_DIR = Path(__file__).parent.parent / 'frontend' / 'posters'
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+DATA_DIR = Path(__file__).parent.parent / 'data'
+DATA_DIR.mkdir(exist_ok=True)
+SHOWS_FILE = DATA_DIR / 'shows.json'
+
+def get_shows():
+    if SHOWS_FILE.exists():
+        return json.load(open(SHOWS_FILE))
+    return []
+
+def save_shows(shows):
+    json.dump(shows, open(SHOWS_FILE, 'w'), indent=2)
 
 def get_channels():
     """Load TV channels from file"""
@@ -41,6 +55,31 @@ def save_seasons(seasons):
         json.dump(seasons, f, indent=2)
 
 # ==================== ADMIN ROUTES ====================
+
+@admin_app.route('/api/shows', methods=['POST'])
+def add_show():
+    name = request.form['name']
+    poster = request.files.get('poster')
+
+    shows = get_shows()
+    show_id = str(len(shows) + 1)
+
+    poster_filename = ''
+    if poster:
+        poster_filename = f"{show_id}_{poster.filename}"
+        poster.save(UPLOAD_DIR / poster_filename)
+
+    show = {
+        "id": show_id,
+        "name": name,
+        "poster": poster_filename,
+        "seasons": []
+    }
+
+    shows.append(show)
+    save_shows(shows)
+    return jsonify(show), 201
+
 
 @admin_app.route('/')
 def admin_panel():
@@ -280,6 +319,30 @@ def admin_panel():
                 </div>
             </div>
 
+            <div class="section">
+                <h2>📺 Add TV Show</h2>
+
+                <form onsubmit="addShow(event)">
+                    <div class="form-group">
+                        <label>Show Name</label>
+                        <input type="text" id="show-name" placeholder="That 70s Show" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Poster Image</label>
+                        <input type="file" id="show-poster" accept="image/*">
+                    </div>
+
+                    <button type="submit">Add Show</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h2>TV Shows</h2>
+                <div id="shows-list" class="list-container"></div>
+            </div>
+
+
             <!-- Add Episodes Section -->
             <div class="section" id="episodes-section" style="display: none;">
                 <h2>📹 Add Episodes to Season</h2>
@@ -300,7 +363,7 @@ def admin_panel():
         </div>
 
         <script>
-            const API_URL = 'http://localhost:5000/api';
+            const API_URL = 'http://localhost:5001/api';
 
             function showMessage(message, type = 'success') {
                 const msgEl = document.getElementById('message');
@@ -387,6 +450,41 @@ def admin_panel():
                 }
             }
 
+            async function addShow(e) {
+                e.preventDefault();
+
+                const nameInput = document.getElementById('show-name');
+                const posterInput = document.getElementById('show-poster');
+
+                const name = nameInput.value.trim();
+                const poster = posterInput.files[0];
+
+                if (!name) {
+                    showMessage('Show name is required', 'error');
+                    return;
+                }
+
+                const form = new FormData();
+                form.append('name', name);
+                if (poster) form.append('poster', poster);
+
+                const res = await fetch(`${API_URL}/shows`, {
+                    method: 'POST',
+                    body: form
+                });
+
+                if (res.ok) {
+                    showMessage('Show added!');
+                    nameInput.value = '';
+                    posterInput.value = '';
+                    loadShows();
+                } else {
+                    showMessage('Failed to add show', 'error');
+                }
+            }
+
+
+
             async function addChannel(event) {
                 event.preventDefault();
                 const name = document.getElementById('channel-name').value;
@@ -462,6 +560,7 @@ def admin_panel():
                     }
                 }
             }
+
 
             async function addEpisodes(event) {
                 event.preventDefault();

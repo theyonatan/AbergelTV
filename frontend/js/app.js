@@ -53,9 +53,33 @@ const app = {
     },
 
     async goToVOD() {
-        this.showView('vod-view');
-        await this.loadSeasons();
+        this.showView('shows-view');
+        const res = await fetch(`${this.apiUrl}/shows`);
+        const shows = await res.json();
+        this.renderShows(shows);
     },
+
+    renderShows(shows) {
+        const grid = document.getElementById('shows-grid');
+        grid.innerHTML = '';
+
+        shows.forEach(show => {
+            const card = document.createElement('div');
+            card.className = 'show-card';
+            card.style.backgroundImage = show.poster ? `url(/posters/${show.poster})` : `url(/posters/default.jpg)`;
+
+            card.innerHTML = `<div class="title">${show.name}</div>`;
+            card.onclick = () => this.selectShow(show);
+            grid.appendChild(card);
+        });
+    },
+    
+    selectShow(show) {
+        this.currentShow = show;
+        this.renderSeasons(show.seasons);
+        this.showView('vod-view');
+    },
+
 
     async goToEpisodes() {
         this.showView('vod-episodes');
@@ -146,7 +170,6 @@ const app = {
         [...video.querySelectorAll('track')].forEach(t => t.remove());
 
         if (!lang) {
-            video.load();
             return;
         }
 
@@ -178,8 +201,6 @@ const app = {
         track.default = true;
 
         video.appendChild(track);
-
-        video.load(); // forces browser to fetch subtitle
     },
 
 
@@ -216,6 +237,9 @@ const app = {
         const video = document.getElementById('vod-video');
         const videoPath = episode.path.replace(/\\/g, '__SLASH__');
         video.src = `${this.apiUrl}/video/${videoPath}`;
+        video.onloadedmetadata = () => {
+            app.setSubtitle('he');
+        };
     },
 
     // Event Listeners
@@ -227,12 +251,16 @@ const app = {
             const playerUI = document.querySelector('.player-ui');
             const liveIndicator = document.getElementById('live-indicator');
 
-            // Show player UI (existing behavior)
-            if (playerUI && !playerUI.classList.contains('vod-ui')) {
+            // Show cursor
+            document.body.classList.remove('hide-cursor');
+
+            // Show player UI
+            if (playerUI) {
                 playerUI.classList.add('visible');
                 clearTimeout(uiTimeout);
                 uiTimeout = setTimeout(() => {
                     playerUI.classList.remove('visible');
+                    document.body.classList.add('hide-cursor'); // 🔥 hide cursor
                 }, 3000);
             }
 
@@ -303,8 +331,9 @@ class ChannelPlayer {
                 : Math.min(this.liveStartTime || 0, video.duration - 1);
 
             video.currentTime = startTime;
-
             video.play();
+
+            app.setSubtitle('he');
         };
 
         this.updateEpisodeInfo();

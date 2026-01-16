@@ -5,4 +5,5 @@ structure:
       - style.css
   - js
       - app.js
+  - posters
 

@@ -44,9 +44,6 @@
                 <div class="player-ui">
                     <div class="player-controls">
                         <div class="subtitle-controls">
-                        <button onclick="app.setSubtitle('en')">🗨 EN</button>
-                        <button onclick="app.setSubtitle('he')">🗨 HE</button>
-                        <button onclick="app.setSubtitle(null)">🚫 CC</button>
                         </div>
                         <button class="control-btn prev-btn" onclick="app.channelPlayer.previousEpisode()">
                             ⏮ Previous
@@ -62,6 +59,19 @@
                 </div>
             </div>
         </div>
+
+        <!-- VOD Shows View -->
+        <div id="shows-view" class="view hidden">
+            <div class="view-header">
+                <button class="back-btn" onclick="app.goToMenu()">← Back</button>
+                <h2>TV Shows</h2>
+            </div>
+
+            <div id="shows-grid" class="shows-grid">
+                <!-- Show posters go here -->
+            </div>
+        </div>
+
 
         <!-- VOD View -->
         <div id="vod-view" class="view hidden">
@@ -93,10 +103,6 @@
                 </div>
                 <video id="vod-video" class="player-video" controls></video>
                 <div class="player-ui vod-ui">
-                    <div class="subtitle-controls">
-                    <button onclick="app.setSubtitle('en')">🗨 EN</button>
-                    <button onclick="app.setSubtitle('he')">🗨 HE</button>
-                    <button onclick="app.setSubtitle(null)">🚫 CC</button>
                 </div>
                 <button class="back-btn back-top" onclick="app.goToEpisodes()">← Back</button>
                 </div>

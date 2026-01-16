@@ -178,6 +178,53 @@ def add_episodes_to_season(season_id):
     save_seasons(seasons)
     return jsonify(season), 200
 
+
+@app.route('/api/shows', methods=['GET'])
+def list_shows():
+    return jsonify(get_shows())
+
+@app.route('/api/shows', methods=['POST'])
+def add_show():
+    data = request.json
+    shows = get_shows()
+    show = {
+        "id": str(len(shows) + 1),
+        "name": data["name"],
+        "poster": data.get("poster", ""),
+        "seasons": []
+    }
+    shows.append(show)
+    save_shows(shows)
+    return jsonify(show), 201
+
+@app.route('/api/shows/<show_id>/seasons', methods=['POST'])
+def add_season_to_show(show_id):
+    shows = get_shows()
+    data = request.json
+
+    for show in shows:
+        if show["id"] == show_id:
+            season = {
+                "id": str(len(show["seasons"]) + 1),
+                "name": data["name"],
+                "episodes": []
+            }
+            show["seasons"].append(season)
+            save_shows(shows)
+            return jsonify(season), 201
+
+    return jsonify({"error": "Show not found"}), 404
+
+SHOWS_FILE = DATA_DIR / 'shows.json'
+
+def get_shows():
+    if SHOWS_FILE.exists():
+        return json.load(open(SHOWS_FILE))
+    return []
+
+def save_shows(shows):
+    json.dump(shows, open(SHOWS_FILE, 'w'), indent=2)
+
 # ==================== MEDIA SERVING ====================
 
 @app.route('/api/video/<path:video_path>', methods=['GET'])

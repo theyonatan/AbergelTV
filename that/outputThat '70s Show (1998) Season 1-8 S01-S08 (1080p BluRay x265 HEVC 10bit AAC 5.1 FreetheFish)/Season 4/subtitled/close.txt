@@ -1,0 +1,1 @@
+whisper vid.mp4 --task transcribe --language en --output_format srt --word_timestamps True

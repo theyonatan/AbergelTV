@@ -2,3 +2,5 @@
 *.srt
 *.vtt
 *.log
+./that/*
+*.mkv

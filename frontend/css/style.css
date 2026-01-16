@@ -422,3 +422,28 @@ body {
         font-size: 0.9rem;
     }
 }
+
+.hide-cursor {
+    cursor: none;
+}
+
+.show-card {
+  position: relative;
+  width: 180px;
+  height: 270px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.show-card .title {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 8px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  text-align: center;
+}
