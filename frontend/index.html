@@ -43,20 +43,27 @@
                 <video id="channel-video" class="player-video"></video>
                 <div class="player-ui">
                     <div class="player-controls">
-                        <div class="subtitle-controls">
-                        </div>
+                        <div class="subtitle-controls"></div>
+
                         <button class="control-btn prev-btn" onclick="app.channelPlayer.previousEpisode()">
                             ⏮ Previous
                         </button>
+
                         <div class="episode-info">
                             <span id="current-episode-info">-</span>
                         </div>
+
                         <button class="control-btn next-btn" onclick="app.channelPlayer.nextEpisode()">
                             Next ⏭
                         </button>
                     </div>
-                    <button class="back-btn back-top" onclick="app.goToChannels()">← Back</button>
+
+                    <div class="back-top" style="display:flex; gap:1rem;">
+                        <button class="back-btn" onclick="app.goToChannels()">← Back</button>
+                        <button class="back-btn" onclick="app.toggleLiveFullscreen()">⛶ Fullscreen</button>
+                    </div>
                 </div>
+
             </div>
         </div>
 

@@ -8,7 +8,10 @@ import sys
 
 # Admin Flask app
 admin_app = Flask(__name__, template_folder='.')
-CORS(admin_app)
+CORS(
+    admin_app,
+    resources={r"/api/*": {"origins": "*"}}
+)
 
 # Data file paths
 DATA_DIR = Path(__file__).parent.parent / 'data'
@@ -55,6 +58,57 @@ def save_seasons(seasons):
         json.dump(seasons, f, indent=2)
 
 # ==================== ADMIN ROUTES ====================
+
+@admin_app.route('/api/shows/<show_id>/seasons', methods=['POST'])
+def add_season_to_show(show_id):
+    shows = get_shows()
+    data = request.get_json(force=True)
+
+    for show in shows:
+        if show["id"] == show_id:
+            show["seasons"].append({
+                "id": str(len(show["seasons"]) + 1),
+                "name": data["name"],
+                "episodes": []
+            })
+            save_shows(shows)
+            return jsonify(show), 201
+
+    return jsonify({"error": "Show not found"}), 404
+
+@admin_app.route('/api/shows', methods=['GET'])
+def list_shows():
+    return jsonify(get_shows())
+
+@admin_app.route('/api/shows/<show_id>/seasons/<season_id>/episodes', methods=['POST'])
+def add_episodes_to_show_season(show_id, season_id):
+    data = request.get_json(force=True)
+    folder = Path(data['folder_path'])
+
+    shows = get_shows()
+
+    for show in shows:
+        if show['id'] == show_id:
+            for season in show['seasons']:
+                if season['id'] == season_id:
+                    files = sorted([
+                        f for f in folder.iterdir()
+                        if f.suffix.lower() in ['.mp4', '.mkv', '.avi']
+                    ])
+
+                    season['episodes'] = [
+                        {
+                            'filename': f.name,
+                            'path': str(f)
+                        }
+                        for f in files
+                    ]
+
+                    save_shows(shows)
+                    return jsonify(season), 200
+
+    return jsonify({'error': 'Not found'}), 404
+
 
 @admin_app.route('/api/shows', methods=['POST'])
 def add_show():
@@ -300,21 +354,20 @@ def admin_panel():
                 <!-- VOD SECTION -->
                 <div>
                     <div class="section">
-                        <h2>🎬 Add VOD Season</h2>
-                        <form onsubmit="addSeason(event)">
+                        <h2>🎬 Add Season to TV Show</h2>
+                        <form onsubmit="addSeasonToShow(event)">
                             <div class="form-group">
-                                <label for="season-name">Season Name:</label>
-                                <input type="text" id="season-name" placeholder="e.g., Season 1" required>
+                                <label>TV Show</label>
+                                <select id="season-show" required></select>
                             </div>
-                            <button type="submit">Create Season</button>
-                        </form>
-                    </div>
 
-                    <div class="section">
-                        <h2>Seasons</h2>
-                        <div id="seasons-list" class="list-container">
-                            <p style="text-align: center; color: #a0aec0;">No seasons created yet</p>
-                        </div>
+                            <div class="form-group">
+                                <label>Season Name</label>
+                                <input type="text" id="season-name" placeholder="Season 1" required>
+                            </div>
+
+                            <button type="submit">Add Season</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -344,14 +397,14 @@ def admin_panel():
 
 
             <!-- Add Episodes Section -->
-            <div class="section" id="episodes-section" style="display: none;">
+            <div class="section" id="episodes-section">
                 <h2>📹 Add Episodes to Season</h2>
                 <form onsubmit="addEpisodes(event)">
                     <div class="form-group">
-                        <label for="episode-season">Select Season:</label>
-                        <select id="episode-season" required>
-                            <option value="">Choose a season...</option>
-                        </select>
+                        <label>TV Show</label>
+                        <select id="episode-show" required></select>
+                        <label>Season</label>
+                        <select id="episode-season" required></select>
                     </div>
                     <div class="form-group">
                         <label for="episode-folder">Folder with Episodes:</label>
@@ -363,7 +416,9 @@ def admin_panel():
         </div>
 
         <script>
-            const API_URL = 'http://localhost:5001/api';
+            const ADMIN_API = 'http://10.0.0.21:5001/api'; // shows
+            const MAIN_API  = 'http://10.0.0.21:5000/api'; // channels, seasons
+
 
             function showMessage(message, type = 'success') {
                 const msgEl = document.getElementById('message');
@@ -377,7 +432,7 @@ def admin_panel():
 
             async function loadChannels() {
                 try {
-                    const response = await fetch(`${API_URL}/channels`);
+                    const response = await fetch(`${MAIN_API}/channels`)
                     const channels = await response.json();
                     const container = document.getElementById('channels-list');
                     container.innerHTML = '';
@@ -406,49 +461,23 @@ def admin_panel():
                 }
             }
 
-            async function loadSeasons() {
-                try {
-                    const response = await fetch(`${API_URL}/seasons`);
-                    const seasons = await response.json();
-                    const container = document.getElementById('seasons-list');
-                    const select = document.getElementById('episode-season');
-                    
-                    container.innerHTML = '';
-                    select.innerHTML = '<option value="">Choose a season...</option>';
 
-                    if (seasons.length === 0) {
-                        container.innerHTML = '<p style="text-align: center; color: #a0aec0;">No seasons created yet</p>';
-                        document.getElementById('episodes-section').style.display = 'none';
-                        return;
-                    }
+            async function populateShowSelect() {
+                const res = await fetch(`${ADMIN_API}/shows`);
+                if (!res.ok) return;
 
-                    document.getElementById('episodes-section').style.display = 'block';
+                const shows = await res.json();
+                const select = document.getElementById('season-show');
+                select.innerHTML = '';
 
-                    seasons.forEach(season => {
-                        // Add to list
-                        const item = document.createElement('div');
-                        item.className = 'item';
-                        item.innerHTML = `
-                            <div class="item-info">
-                                <h3>${season.name}</h3>
-                                <p>${season.episodes.length} episodes</p>
-                            </div>
-                            <div class="item-actions">
-                                <button class="btn-delete" onclick="deleteSeason('${season.id}')">Delete</button>
-                            </div>
-                        `;
-                        container.appendChild(item);
-
-                        // Add to select
-                        const option = document.createElement('option');
-                        option.value = season.id;
-                        option.textContent = season.name;
-                        select.appendChild(option);
-                    });
-                } catch (error) {
-                    console.error('Error loading seasons:', error);
-                }
+                shows.forEach(show => {
+                    const option = document.createElement('option');
+                    option.value = show.id;
+                    option.textContent = show.name;
+                    select.appendChild(option);
+                });
             }
+
 
             async function addShow(e) {
                 e.preventDefault();
@@ -468,7 +497,7 @@ def admin_panel():
                 form.append('name', name);
                 if (poster) form.append('poster', poster);
 
-                const res = await fetch(`${API_URL}/shows`, {
+                const res = await fetch(`${ADMIN_API}/shows`, {
                     method: 'POST',
                     body: form
                 });
@@ -483,7 +512,43 @@ def admin_panel():
                 }
             }
 
+            async function populateEpisodeShows() {
+                const res = await fetch(`${ADMIN_API}/shows`);
+                if (!res.ok) return;
 
+                const shows = await res.json();
+                const showSelect = document.getElementById('episode-show');
+                showSelect.innerHTML = '<option value="">Select show</option>';
+
+                shows.forEach(show => {
+                    const opt = document.createElement('option');
+                    opt.value = show.id;
+                    opt.textContent = show.name;
+                    showSelect.appendChild(opt);
+                });
+            }
+
+            document.getElementById('episode-show').addEventListener('change', async e => {
+                const showId = e.target.value;
+                const seasonSelect = document.getElementById('episode-season');
+                seasonSelect.innerHTML = '';
+
+                const res = await fetch(`${ADMIN_API}/shows`);
+                const shows = await res.json();
+                const show = shows.find(s => s.id === showId);
+                if (!show) return;
+
+                show.seasons.forEach(season => {
+                    const opt = document.createElement('option');
+                    opt.value = season.id;
+                    opt.textContent = season.name;
+                    seasonSelect.appendChild(opt);
+                });
+
+                if (show.seasons.length === 0) {
+                    seasonSelect.innerHTML = '<option value="">No seasons yet - add one above</option>';
+                }
+            });
 
             async function addChannel(event) {
                 event.preventDefault();
@@ -491,7 +556,7 @@ def admin_panel():
                 const folder = document.getElementById('channel-folder').value;
 
                 try {
-                    const response = await fetch(`${API_URL}/channels`, {
+                    const response = await fetch(`${MAIN_API}/channels`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ name, folder_path: folder })
@@ -513,7 +578,7 @@ def admin_panel():
             async function deleteChannel(channelId) {
                 if (confirm('Delete this channel?')) {
                     try {
-                        const response = await fetch(`${API_URL}/channels/${channelId}`, { method: 'DELETE' });
+                        const response = await fetch(`${MAIN_API}/channels/${channelId}`, { method: 'DELETE' });
                         if (response.ok) {
                             showMessage('Channel deleted!');
                             loadChannels();
@@ -524,36 +589,39 @@ def admin_panel():
                 }
             }
 
-            async function addSeason(event) {
-                event.preventDefault();
-                const name = document.getElementById('season-name').value;
+            async function loadShows() {
+                const res = await fetch(`${ADMIN_API}/shows`);
+                if (!res.ok) return;
 
-                try {
-                    const response = await fetch(`${API_URL}/seasons`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name })
-                    });
+                const shows = await res.json();
+                const container = document.getElementById('shows-list');
+                container.innerHTML = '';
 
-                    if (response.ok) {
-                        showMessage('Season created successfully!');
-                        document.getElementById('season-name').value = '';
-                        loadSeasons();
-                    } else {
-                        showMessage('Error creating season', 'error');
-                    }
-                } catch (error) {
-                    showMessage('Error: ' + error.message, 'error');
+                if (shows.length === 0) {
+                    container.innerHTML =
+                        '<p style="text-align:center;color:#a0aec0">No TV shows yet</p>';
+                    return;
                 }
+
+                shows.forEach(show => {
+                    const item = document.createElement('div');
+                    item.className = 'item';
+                    item.innerHTML = `
+                        <div class="item-info">
+                            <h3>${show.name}</h3>
+                            <p>${show.seasons.length} seasons</p>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
             }
 
             async function deleteSeason(seasonId) {
                 if (confirm('Delete this season?')) {
                     try {
-                        const response = await fetch(`${API_URL}/seasons/${seasonId}`, { method: 'DELETE' });
+                        const response = await fetch(`${MAIN_API}/seasons/${seasonId}`, { method: 'DELETE' });
                         if (response.ok) {
                             showMessage('Season deleted!');
-                            loadSeasons();
                         }
                     } catch (error) {
                         showMessage('Error: ' + error.message, 'error');
@@ -561,39 +629,75 @@ def admin_panel():
                 }
             }
 
+            async function addSeasonToShow(event) {
+                event.preventDefault();
+
+                const showId = document.getElementById('season-show').value;
+                const name = document.getElementById('season-name').value;
+
+                const res = await fetch(`${ADMIN_API}/shows/${showId}/seasons`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ name })
+                });
+
+                if (res.ok) {
+                    showMessage('Season added!');
+                    document.getElementById('season-name').value = '';
+                    loadShows();
+                    populateShowSelect();
+                } else {
+                    showMessage('Failed to add season', 'error');
+                }
+            }
+
+
 
             async function addEpisodes(event) {
                 event.preventDefault();
+
+                const showId = document.getElementById('episode-show').value;
                 const seasonId = document.getElementById('episode-season').value;
                 const folderPath = document.getElementById('episode-folder').value;
 
+                if (!showId || !seasonId) {
+                    showMessage('Pick a show and a season', 'error');
+                    return;
+                }
+
                 try {
-                    const response = await fetch(`${API_URL}/seasons/${seasonId}/episodes`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ folder_path: folderPath })
-                    });
+                    const response = await fetch(
+                        `${ADMIN_API}/shows/${showId}/seasons/${seasonId}/episodes`,
+                        {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ folder_path: folderPath })
+                        }
+                    );
 
                     if (response.ok) {
                         showMessage('Episodes added successfully!');
                         document.getElementById('episode-folder').value = '';
-                        loadSeasons();
+                        loadShows(); // refresh counts
                     } else {
-                        showMessage('Error adding episodes', 'error');
+                        const txt = await response.text();
+                        showMessage('Error adding episodes: ' + txt, 'error');
                     }
                 } catch (error) {
                     showMessage('Error: ' + error.message, 'error');
                 }
             }
 
+
             // Load initial data
             document.addEventListener('DOMContentLoaded', () => {
                 loadChannels();
-                loadSeasons();
+                loadShows();
+                populateShowSelect();
+                populateEpisodeShows();
                 // Refresh every 5 seconds
                 setInterval(() => {
                     loadChannels();
-                    loadSeasons();
                 }, 5000);
             });
         </script>

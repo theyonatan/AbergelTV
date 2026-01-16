@@ -52,10 +52,27 @@ const app = {
         await this.loadChannels();
     },
 
+    toggleLiveFullscreen() {
+        const container = document.querySelector('#channel-player .player-container');
+        if (!container) return;
+
+        if (!document.fullscreenElement) {
+            container.requestFullscreen().catch(err => {
+                console.error('Failed to enter fullscreen:', err);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    },
+
+
+
     async goToVOD() {
         this.showView('shows-view');
-        const res = await fetch(`${this.apiUrl}/shows`);
-        const shows = await res.json();
+        const res = await fetch('http://10.0.0.21:5001/api/shows');
+        if (!res.ok) throw new Error('Failed to load shows');
+        const text = await res.text();
+        const shows = JSON.parse(text);
         this.renderShows(shows);
     },
 
@@ -66,9 +83,10 @@ const app = {
         shows.forEach(show => {
             const card = document.createElement('div');
             card.className = 'show-card';
-            card.style.backgroundImage = show.poster ? `url(/posters/${show.poster})` : `url(/posters/default.jpg)`;
-
-            card.innerHTML = `<div class="title">${show.name}</div>`;
+            card.innerHTML = `
+                <img src="http://10.0.0.21:5000/posters/${show.poster}">
+                <div class="show-title">${show.name}</div>
+            `;
             card.onclick = () => this.selectShow(show);
             grid.appendChild(card);
         });
@@ -127,16 +145,6 @@ const app = {
     },
 
     // VOD
-    async loadSeasons() {
-        try {
-            const response = await fetch(`${this.apiUrl}/seasons`);
-            const seasons = await response.json();
-            this.renderSeasons(seasons);
-        } catch (error) {
-            console.error('Error loading seasons:', error);
-        }
-    },
-
     renderSeasons(seasons) {
         const container = document.getElementById('seasons-list');
         container.innerHTML = '';

@@ -6,4 +6,6 @@ structure:
   - js
       - app.js
   - posters
+      - 1_that70sposter.jpg
+      - 2_that70sposter.jpg
 

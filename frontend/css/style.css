@@ -342,7 +342,20 @@ body {
     top: 2rem;
     left: 2rem;
     z-index: 100;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
 }
+.player-ui.visible .back-top {
+    opacity: 1;
+    pointer-events: auto;
+}
+.player-container:fullscreen {
+    width: 100vw;
+    height: 100vh;
+}
+
 
 .vod-ui {
     opacity: 1 !important;
