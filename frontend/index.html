@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streaming Site</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Main Menu -->
+        <div id="menu" class="menu hidden">
+            <div class="menu-container">
+                <h1>Streaming Platform</h1>
+                <div class="menu-buttons">
+                    <button class="menu-btn" onclick="app.goToChannels()">
+                        📺 TV Channels
+                    </button>
+                    <button class="menu-btn" onclick="app.goToVOD()">
+                        🎬 VOD (Video on Demand)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TV Channels View -->
+        <div id="channels-view" class="view hidden">
+            <div class="view-header">
+                <button class="back-btn" onclick="app.goToMenu()">← Back</button>
+                <h2>TV Channels</h2>
+            </div>
+            <div id="channels-list" class="channels-grid">
+                <!-- Channels will be populated here -->
+            </div>
+        </div>
+
+        <!-- Channel Player View -->
+        <div id="channel-player" class="view hidden">
+            <div class="player-container">
+                <div id="live-indicator" class="live-indicator">
+                ● LIVE
+                </div>
+                <video id="channel-video" class="player-video"></video>
+                <div class="player-ui">
+                    <div class="player-controls">
+                        <div class="subtitle-controls">
+                        <button onclick="app.setSubtitle('en')">🗨 EN</button>
+                        <button onclick="app.setSubtitle('he')">🗨 HE</button>
+                        <button onclick="app.setSubtitle(null)">🚫 CC</button>
+                        </div>
+                        <button class="control-btn prev-btn" onclick="app.channelPlayer.previousEpisode()">
+                            ⏮ Previous
+                        </button>
+                        <div class="episode-info">
+                            <span id="current-episode-info">-</span>
+                        </div>
+                        <button class="control-btn next-btn" onclick="app.channelPlayer.nextEpisode()">
+                            Next ⏭
+                        </button>
+                    </div>
+                    <button class="back-btn back-top" onclick="app.goToChannels()">← Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VOD View -->
+        <div id="vod-view" class="view hidden">
+            <div class="view-header">
+                <button class="back-btn" onclick="app.goToMenu()">← Back</button>
+                <h2>Video on Demand</h2>
+            </div>
+            <div id="seasons-list" class="seasons-list">
+                <!-- Seasons will be populated here -->
+            </div>
+        </div>
+
+        <!-- VOD Episodes View -->
+        <div id="vod-episodes" class="view hidden">
+            <div class="view-header">
+                <button class="back-btn" onclick="app.goToVOD()">← Back</button>
+                <h2 id="season-title">Season</h2>
+            </div>
+            <div id="episodes-list" class="episodes-grid">
+                <!-- Episodes will be populated here -->
+            </div>
+        </div>
+
+        <!-- VOD Player View -->
+        <div id="vod-player" class="view hidden">
+            <div class="player-container">
+                <div id="live-indicator" class="live-indicator">
+                ● LIVE
+                </div>
+                <video id="vod-video" class="player-video" controls></video>
+                <div class="player-ui vod-ui">
+                    <div class="subtitle-controls">
+                    <button onclick="app.setSubtitle('en')">🗨 EN</button>
+                    <button onclick="app.setSubtitle('he')">🗨 HE</button>
+                    <button onclick="app.setSubtitle(null)">🚫 CC</button>
+                </div>
+                <button class="back-btn back-top" onclick="app.goToEpisodes()">← Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
