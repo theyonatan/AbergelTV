@@ -360,7 +360,7 @@ body {
 .vod-ui {
     opacity: 1 !important;
     background: transparent;
-    pointer-events: none;
+    pointer-events: auto;
     inset: 0;
     padding: 0;
 }

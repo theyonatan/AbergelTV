@@ -9,3 +9,1016 @@ structure:
       - 1_that70sposter.jpg
       - 2_that70sposter.jpg
 
+```index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streaming Site</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Main Menu -->
+        <div id="menu" class="menu hidden">
+            <div class="menu-container">
+                <h1>Streaming Platform</h1>
+                <div class="menu-buttons">
+                    <button class="menu-btn" onclick="app.goToChannels()">
+                        📺 TV Channels
+                    </button>
+                    <button class="menu-btn" onclick="app.goToVOD()">
+                        🎬 VOD (Video on Demand)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TV Channels View -->
+        <div id="channels-view" class="view hidden">
+            <div class="view-header">
+                <button class="back-btn" onclick="app.goToMenu()">← Back</button>
+                <h2>TV Channels</h2>
+            </div>
+            <div id="channels-list" class="channels-grid">
+                <!-- Channels will be populated here -->
+            </div>
+        </div>
+
+        <!-- Channel Player View -->
+        <div id="channel-player" class="view hidden">
+            <div class="player-container">
+                <div id="live-indicator" class="live-indicator">
+                ● LIVE
+                </div>
+                <video id="channel-video" class="player-video"></video>
+                <div class="player-ui">
+                    <div class="player-controls">
+                        <div class="subtitle-controls"></div>
+
+                        <button class="control-btn prev-btn" onclick="app.channelPlayer.previousEpisode()">
+                            ⏮ Previous
+                        </button>
+
+                        <div class="episode-info">
+                            <span id="current-episode-info">-</span>
+                        </div>
+
+                        <button class="control-btn next-btn" onclick="app.channelPlayer.nextEpisode()">
+                            Next ⏭
+                        </button>
+                    </div>
+
+                    <div class="back-top" style="display:flex; gap:1rem;">
+                        <button class="back-btn" onclick="app.goToChannels()">← Back</button>
+                        <button class="back-btn" onclick="app.toggleLiveFullscreen()">⛶ Fullscreen</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- VOD Shows View -->
+        <div id="shows-view" class="view hidden">
+            <div class="view-header">
+                <button class="back-btn" onclick="app.goToMenu()">← Back</button>
+                <h2>TV Shows</h2>
+            </div>
+
+            <div id="shows-grid" class="shows-grid">
+                <!-- Show posters go here -->
+            </div>
+        </div>
+
+
+        <!-- VOD View -->
+        <div id="vod-view" class="view hidden">
+            <div class="view-header">
+                <button class="back-btn" onclick="app.goToMenu()">← Back</button>
+                <h2>Video on Demand</h2>
+            </div>
+            <div id="seasons-list" class="seasons-list">
+                <!-- Seasons will be populated here -->
+            </div>
+        </div>
+
+        <!-- VOD Episodes View -->
+        <div id="vod-episodes" class="view hidden">
+            <div class="view-header">
+                <button class="back-btn" onclick="app.goToVOD()">← Back</button>
+                <h2 id="season-title">Season</h2>
+            </div>
+            <div id="episodes-list" class="episodes-grid">
+                <!-- Episodes will be populated here -->
+            </div>
+        </div>
+
+        <!-- VOD Player View -->
+        <div id="vod-player" class="view hidden">
+            <div class="player-container">
+                <div id="live-indicator" class="live-indicator">
+                ● LIVE
+                </div>
+                <video id="vod-video" class="player-video" controls></video>
+                <div class="player-ui vod-ui">
+                </div>
+                <button class="back-btn back-top" onclick="app.goToEpisodes()">← Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
+```
+
+```css\style.css
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #0a0e27;
+    color: #e0e0e0;
+    overflow: hidden;
+    height: 100vh;
+}
+
+#app {
+    height: 100vh;
+    display: flex;
+}
+
+.view {
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+}
+
+.view.hidden {
+    display: none !important;
+}
+
+.view:not(.hidden) {
+    display: flex;
+}
+
+/* ==================== MENU ==================== */
+
+.menu {
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+}
+
+.menu:not(.hidden) {
+    display: flex;
+}
+
+.menu-container {
+    text-align: center;
+}
+
+.menu h1 {
+    font-size: 4rem;
+    margin-bottom: 3rem;
+    background: linear-gradient(135deg, #00d4ff, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.menu-buttons {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+}
+
+.menu-btn {
+    padding: 1.5rem 3rem;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #7c3aed, #00d4ff);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+}
+
+.menu-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 30px rgba(124, 58, 237, 0.6);
+}
+
+/* ==================== COMMON ==================== */
+
+.view-header {
+    padding: 2rem;
+    background: rgba(26, 31, 58, 0.95);
+    border-bottom: 1px solid rgba(124, 58, 237, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.view-header h2 {
+    font-size: 2rem;
+    flex: 1;
+}
+
+.back-btn {
+    padding: 0.8rem 1.5rem;
+    background: rgba(124, 58, 237, 0.3);
+    color: #00d4ff;
+    border: 1px solid #00d4ff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: rgba(124, 58, 237, 0.5);
+    transform: translateY(-2px);
+}
+
+/* ==================== CHANNELS VIEW ==================== */
+
+.channels-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.channel-card {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(124, 58, 237, 0.5);
+    border-radius: 10px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.channel-card:hover {
+    border-color: #00d4ff;
+    background: rgba(30, 41, 59, 1);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 212, 255, 0.2);
+}
+
+.channel-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    color: #00d4ff;
+}
+
+.channel-card p {
+    font-size: 0.9rem;
+    color: #a0aec0;
+}
+
+/* ==================== VOD VIEW ==================== */
+
+.seasons-list {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.season-card {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(124, 58, 237, 0.5);
+    border-radius: 10px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.season-card:hover {
+    border-color: #00d4ff;
+    background: rgba(30, 41, 59, 1);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 212, 255, 0.2);
+}
+
+.season-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    color: #00d4ff;
+}
+
+.season-card p {
+    font-size: 0.9rem;
+    color: #a0aec0;
+}
+
+/* ==================== EPISODES VIEW ==================== */
+
+.episodes-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.episode-card {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(124, 58, 237, 0.5);
+    border-radius: 8px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.episode-card:hover {
+    border-color: #00d4ff;
+    background: rgba(30, 41, 59, 1);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 212, 255, 0.2);
+}
+
+.episode-card h4 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: #00d4ff;
+}
+
+/* ==================== PLAYER ==================== */
+
+.player-container {
+    flex: 1;
+    background: #000;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.live-indicator {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 6px 12px;
+  font-weight: bold;
+  font-size: 14px;
+  color: white;
+  background: red;
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(255,0,0,0.8);
+  animation: pulse 1.5s infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.live-indicator.visible {
+  opacity: 1;
+}
+
+@keyframes pulse {
+  0%   { box-shadow: 0 0 6px rgba(255,0,0,0.6); }
+  50%  { box-shadow: 0 0 14px rgba(255,0,0,1); }
+  100% { box-shadow: 0 0 6px rgba(255,0,0,0.6); }
+}
+
+
+.player-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.player-ui {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    padding: 2rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.player-ui.visible {
+    opacity: 1;
+}
+
+.player-ui.visible .player-controls,
+.player-ui.visible .back-top {
+    pointer-events: auto;
+}
+
+.player-ui:hover {
+    opacity: 1;
+}
+
+.player-ui:hover .player-controls,
+.player-ui:hover .back-top {
+    pointer-events: auto;
+}
+
+.player-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.control-btn {
+    padding: 0.8rem 1.5rem;
+    background: rgba(124, 58, 237, 0.6);
+    color: #00d4ff;
+    border: 1px solid #00d4ff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+    background: rgba(124, 58, 237, 0.9);
+    transform: scale(1.05);
+}
+
+.episode-info {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #e0e0e0;
+    min-width: 200px;
+    text-align: center;
+}
+
+.back-top {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    z-index: 100;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.player-ui.visible .back-top {
+    opacity: 1;
+    pointer-events: auto;
+}
+.player-container:fullscreen {
+    width: 100vw;
+    height: 100vh;
+}
+
+
+.vod-ui {
+    opacity: 1 !important;
+    background: transparent;
+    pointer-events: none;
+    inset: 0;
+    padding: 0;
+}
+
+.vod-ui .back-top {
+    pointer-events: auto;
+}
+
+/* Subtitle controls — put them bottom-left or bottom-center */
+.subtitle-controls {
+    position: absolute;
+    bottom: 2.5rem;              /* ↑ give breathing room above native controls */
+    left: 2rem;                  /* or: left: 50%; transform: translateX(-50%); for center */
+    display: flex;
+    gap: 1rem;
+    pointer-events: auto;
+    z-index: 50;
+}
+
+/* ==================== SCROLLBAR ==================== */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(26, 31, 58, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.5);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(124, 58, 237, 0.8);
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+    .menu h1 {
+        font-size: 2.5rem;
+    }
+
+    .menu-buttons {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .menu-btn {
+        width: 100%;
+        padding: 1rem 2rem;
+        font-size: 1.2rem;
+    }
+
+    .channels-grid,
+    .seasons-list,
+    .episodes-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .player-controls {
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .control-btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+.hide-cursor {
+    cursor: none;
+}
+
+.show-card {
+  position: relative;
+  width: 180px;
+  height: 270px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.show-card .title {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 8px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  text-align: center;
+}
+```
+
+```js\app.js
+// Main app object
+const app = {
+    initialized: false,
+    apiUrl: `${window.location.origin}/api`,
+    currentView: 'menu',
+    currentChannel: null,
+    currentSeason: null,
+    channelPlayer: null,
+    vodPlayer: null,
+
+    // Initialize app
+    async init() {
+        if (this.initialized) return;
+        this.initialized = true;
+
+        this.showView('menu');
+        this.attachEventListeners();
+        console.log('App initialized');
+    },
+
+    // View Management
+    showView(viewName) {
+        // 🔑 Always exit fullscreen when changing views
+        exitFullscreenIfNeeded();
+        
+        // Stop any playing videos when switching views
+        document.querySelectorAll('video').forEach(v => {
+            v.pause();
+            v.removeAttribute('src');
+            v.load();
+        });
+        document.querySelectorAll('video track').forEach(t => t.remove());
+
+        // Hide all views
+        document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+        document.getElementById('menu').classList.add('hidden');
+
+        // Show the requested view
+        if (viewName === 'menu') {
+            document.getElementById('menu').classList.remove('hidden');
+        } else {
+            const view = document.getElementById(viewName);
+            if (view) {
+                view.classList.remove('hidden');
+            }
+        }
+        this.currentView = viewName;
+    },
+
+    goToMenu() {
+        this.showView('menu');
+    },
+
+    async goToChannels() {
+        this.showView('channels-view');
+        await this.loadChannels();
+    },
+
+    toggleLiveFullscreen() {
+        const container = document.querySelector('#channel-player .player-container');
+        if (!container) return;
+
+        if (!document.fullscreenElement) {
+            container.requestFullscreen().catch(err => {
+                console.error('Failed to enter fullscreen:', err);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    },
+
+
+
+    async goToVOD() {
+        this.showView('shows-view');
+        const res = await fetch('http://10.0.0.21:5001/api/shows');
+        if (!res.ok) throw new Error('Failed to load shows');
+        const text = await res.text();
+        const shows = JSON.parse(text);
+        this.renderShows(shows);
+    },
+
+    renderShows(shows) {
+        const grid = document.getElementById('shows-grid');
+        grid.innerHTML = '';
+
+        shows.forEach(show => {
+            const card = document.createElement('div');
+            card.className = 'show-card';
+            card.innerHTML = `
+                <img src="http://10.0.0.21:5000/posters/${show.poster}">
+                <div class="show-title">${show.name}</div>
+            `;
+            card.onclick = () => this.selectShow(show);
+            grid.appendChild(card);
+        });
+    },
+    
+    selectShow(show) {
+        this.currentShow = show;
+        this.renderSeasons(show.seasons);
+        this.showView('vod-view');
+    },
+
+
+    async goToEpisodes() {
+        this.showView('vod-episodes');
+    },
+
+    // TV Channels
+    async loadChannels() {
+        try {
+            const response = await fetch(`${this.apiUrl}/channels`);
+            const channels = await response.json();
+            this.renderChannels(channels);
+        } catch (error) {
+            console.error('Error loading channels:', error);
+        }
+    },
+
+    renderChannels(channels) {
+        const container = document.getElementById('channels-list');
+        container.innerHTML = '';
+
+        if (Object.keys(channels).length === 0) {
+            container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem;">No channels added yet</p>';
+            return;
+        }
+
+        Object.values(channels).forEach(channel => {
+            const card = document.createElement('div');
+            card.className = 'channel-card';
+            card.innerHTML = `
+                <h3>📺 ${channel.name}</h3>
+                <p>${channel.folder_path}</p>
+            `;
+            card.onclick = () => this.selectChannel(channel);
+            container.appendChild(card);
+        });
+    },
+
+    async selectChannel(channel) {
+        this.currentChannel = channel;
+        this.showView('channel-player');
+        
+        // Initialize channel player
+        this.channelPlayer = new ChannelPlayer(channel);
+        await this.channelPlayer.initialize();
+    },
+
+    // VOD
+    renderSeasons(seasons) {
+        const container = document.getElementById('seasons-list');
+        container.innerHTML = '';
+
+        if (seasons.length === 0) {
+            container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem;">No seasons added yet</p>';
+            return;
+        }
+
+        seasons.forEach(season => {
+            const card = document.createElement('div');
+            card.className = 'season-card';
+            card.innerHTML = `
+                <h3>🎬 ${season.name}</h3>
+                <p>${season.episodes.length} episodes</p>
+            `;
+            card.onclick = () => this.selectSeason(season);
+            container.appendChild(card);
+        });
+    },
+
+    setSubtitle(lang) {
+        const video =
+            this.currentView === 'channel-player'
+                ? document.getElementById('channel-video')
+                : document.getElementById('vod-video');
+
+        if (!video) return;
+
+        // 1️⃣ Remove old <track> elements
+        [...video.querySelectorAll('track')].forEach(t => t.remove());
+
+        // 2️⃣ Disable ALL existing textTracks (browser keeps them!)
+        for (let i = 0; i < video.textTracks.length; i++) {
+            video.textTracks[i].mode = 'disabled';
+        }
+
+        if (!lang) return;
+
+        const videoApiSrc = video.currentSrc || video.src;
+        if (!videoApiSrc.includes('/api/video/')) return;
+
+        const encodedPath = videoApiSrc.split('/api/video/')[1];
+        const filePath = decodeURIComponent(encodedPath);
+        const basePath = filePath.replace(/\.(mp4|mkv|webm)$/i, '');
+
+        const subtitlePath =
+            lang === 'he' ? `${basePath}.vtt`
+            : lang === 'en' ? `${basePath}.en.vtt`
+            : null;
+
+        if (!subtitlePath) return;
+
+        const subtitleApiUrl = `/api/video/${encodeURIComponent(subtitlePath)}`;
+
+        // 3️⃣ Create new track
+        const track = document.createElement('track');
+        track.kind = 'subtitles';
+        track.label = lang.toUpperCase();
+        track.srclang = lang;
+        track.src = subtitleApiUrl;
+        track.default = true;
+
+        video.appendChild(track);
+
+        // 🔑 FORCE-enable subtitles (reliable)
+        setTimeout(() => {
+            for (let i = 0; i < video.textTracks.length; i++) {
+                const tt = video.textTracks[i];
+                tt.mode = (tt.language === lang) ? 'showing' : 'disabled';
+            }
+        }, 0);
+    },
+
+    async selectSeason(season) {
+        this.currentSeason = season;
+        document.getElementById('season-title').textContent = season.name;
+        this.renderEpisodes(season.episodes);
+        this.showView('vod-episodes');
+    },
+
+    renderEpisodes(episodes) {
+        const container = document.getElementById('episodes-list');
+        container.innerHTML = '';
+
+        if (episodes.length === 0) {
+            container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem;">No episodes in this season</p>';
+            return;
+        }
+
+        episodes.forEach((episode, index) => {
+            const card = document.createElement('div');
+            card.className = 'episode-card';
+            card.innerHTML = `
+                <h4>Episode ${index + 1}</h4>
+                <p>${episode.filename}</p>
+            `;
+            card.onclick = () => this.playVODEpisode(episode);
+            container.appendChild(card);
+        });
+    },
+
+    async playVODEpisode(episode) {
+        this.showView('vod-player');
+        const video = document.getElementById('vod-video');
+        const videoPath = episode.path.replace(/\\/g, '__SLASH__');
+        video.src = `${this.apiUrl}/video/${videoPath}`;
+        video.onloadedmetadata = () => {
+            app.setSubtitle('he');
+        };
+    },
+
+    // Event Listeners
+    attachEventListeners() {
+        let uiTimeout;
+        let liveTimeout;
+
+        document.addEventListener('mousemove', () => {
+            const playerUI = document.querySelector('.player-ui');
+            const liveIndicator = document.getElementById('live-indicator');
+
+            // Show cursor
+            document.body.classList.remove('hide-cursor');
+
+            // Show player UI
+            if (playerUI) {
+                playerUI.classList.add('visible');
+                clearTimeout(uiTimeout);
+                uiTimeout = setTimeout(() => {
+                    playerUI.classList.remove('visible');
+                    document.body.classList.add('hide-cursor'); // 🔥 hide cursor
+                }, 3000);
+            }
+
+            // Show LIVE badge only on live TV
+            if (app.currentView === 'channel-player' && liveIndicator) {
+                liveIndicator.classList.add('visible');
+                clearTimeout(liveTimeout);
+                liveTimeout = setTimeout(() => {
+                    liveIndicator.classList.remove('visible');
+                }, 3000);
+            }
+        });
+    }
+};
+
+// Channel Player Class
+class ChannelPlayer {
+    constructor(channel) {
+        this.channel = channel;
+        this.episodes = [];
+        this.currentIndex = 0;
+        this.video = document.getElementById('channel-video');
+        this.episodeInfo = document.getElementById('current-episode-info');
+        this.manualOverride = false;
+    }
+
+    async initialize() {
+        try {
+            // Load episodes from channel folder
+            const response = await fetch(`${app.apiUrl}/channels/${this.channel.id}/episodes`);
+            this.episodes = await response.json();
+
+            if (this.episodes.length === 0) {
+                this.episodeInfo.textContent = 'No videos found';
+                return;
+            }
+
+            this.video.onended = () => {
+                this.manualOverride = false;
+                this.nextEpisode();
+            };
+
+            // Start from middle episode
+            this.manualOverride = false;
+            const live = this.getLivePosition();
+            this.currentIndex = live.index;
+            this.liveStartTime = live.time;
+            this.playCurrentEpisode();
+        } catch (error) {
+            console.error('Error initializing channel player:', error);
+        }
+    }
+
+    playCurrentEpisode() {
+        if (this.episodes.length === 0) return;
+
+        const episode = this.episodes[this.currentIndex];
+        const video = this.video;
+
+        video.pause();
+        video.src = "/api/video/" + encodeURIComponent(episode.path);
+        video.load();
+
+        video.onloadedmetadata = () => {
+            // "Live TV" feel: start in the middle
+            const startTime = this.manualOverride
+                ? 0
+                : Math.min(this.liveStartTime || 0, video.duration - 1);
+
+            video.currentTime = startTime;
+            video.play();
+            
+            app.setSubtitle('he');
+        };
+
+        this.updateEpisodeInfo();
+    }
+
+    getLivePosition() {
+        const totalEpisodes = this.episodes.length;
+        if (totalEpisodes === 0) return { index: 0, time: 0 };
+
+        // Total duration of one full loop (estimate: use metadata later if you want)
+        const EST_EPISODE_LENGTH = 22 * 60; // 22 minutes (safe default)
+        const loopDuration = totalEpisodes * EST_EPISODE_LENGTH;
+
+        // Use real time as the clock
+        const now = Math.floor(Date.now() / 1000);
+        const positionInLoop = now % loopDuration;
+
+        const episodeIndex = Math.floor(positionInLoop / EST_EPISODE_LENGTH);
+        const timeInEpisode = positionInLoop % EST_EPISODE_LENGTH;
+
+        return {
+            index: episodeIndex,
+            time: timeInEpisode
+        };
+    }
+
+
+
+    updateEpisodeInfo() {
+        const episode = this.episodes[this.currentIndex];
+        const total = this.episodes.length;
+        this.episodeInfo.textContent = `${episode.filename} (${this.currentIndex + 1}/${total})`;
+    }
+
+    nextEpisode() {
+        this.manualOverride = true;
+        this.currentIndex = (this.currentIndex + 1) % this.episodes.length;
+        this.playCurrentEpisode();
+    }
+
+    previousEpisode() {
+        this.manualOverride = true;
+        this.currentIndex = (this.currentIndex - 1 + this.episodes.length) % this.episodes.length;
+        this.playCurrentEpisode();
+    }
+}
+
+function exitFullscreenIfNeeded() {
+    if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+    }
+}
+
+// Initialize app when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    app.init();
+});
+```
+
+```posters\1_that70sposter.jpg
+# Could not read file (binary or encoding issue)
+```
+
+```posters\2_that70sposter.jpg
+# Could not read file (binary or encoding issue)
+```
+

@@ -73,7 +73,7 @@ const app = {
 
     async goToVOD() {
         this.showView('shows-view');
-        const res = await fetch('http://10.0.0.21:5001/api/shows');
+        const res = await fetch(`${this.apiUrl}/shows`);
         if (!res.ok) throw new Error('Failed to load shows');
         const text = await res.text();
         const shows = JSON.parse(text);
@@ -87,11 +87,12 @@ const app = {
         shows.forEach(show => {
             const card = document.createElement('div');
             card.className = 'show-card';
-            card.innerHTML = `
-                <img src="http://10.0.0.21:5000/posters/${show.poster}">
-                <div class="show-title">${show.name}</div>
-            `;
+            card.style.backgroundImage =
+            `url(http://10.0.0.21:5000/posters/${show.poster})`;
+
+            card.innerHTML = `<div class="title">${show.name}</div>`;
             card.onclick = () => this.selectShow(show);
+
             grid.appendChild(card);
         });
     },
@@ -253,13 +254,31 @@ const app = {
 
     async playVODEpisode(episode) {
         this.showView('vod-player');
+
         const video = document.getElementById('vod-video');
         const videoPath = episode.path.replace(/\\/g, '__SLASH__');
+
+        video.pause();
         video.src = `${this.apiUrl}/video/${videoPath}`;
+
         video.onloadedmetadata = () => {
+            video.currentTime = 0;
+            video.play();          // ✅ THIS WAS MISSING
             app.setSubtitle('he');
         };
     },
+
+    toggleVODFullscreen() {
+        const container = document.querySelector('#vod-player .player-container');
+        if (!container) return;
+
+        if (!document.fullscreenElement) {
+            container.requestFullscreen().catch(() => {});
+        } else {
+            document.exitFullscreen();
+        }
+    },
+
 
     // Event Listeners
     attachEventListeners() {

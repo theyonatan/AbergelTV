@@ -4,3 +4,977 @@ structure:
     - app.py
   - data
 
+```admin.py
+from flask import Flask, render_template_string, request, jsonify
+from flask_cors import CORS
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+# Admin Flask app
+admin_app = Flask(__name__, template_folder='.')
+CORS(
+    admin_app,
+    resources={r"/api/*": {"origins": "*"}}
+)
+
+# Data file paths
+DATA_DIR = Path(__file__).parent.parent / 'data'
+DATA_DIR.mkdir(exist_ok=True)
+CHANNELS_FILE = DATA_DIR / 'channels.json'
+SEASONS_FILE = DATA_DIR / 'seasons.json'
+UPLOAD_DIR = Path(__file__).parent.parent / 'frontend' / 'posters'
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+DATA_DIR = Path(__file__).parent.parent / 'data'
+DATA_DIR.mkdir(exist_ok=True)
+SHOWS_FILE = DATA_DIR / 'shows.json'
+
+def get_shows():
+    if SHOWS_FILE.exists():
+        return json.load(open(SHOWS_FILE))
+    return []
+
+def save_shows(shows):
+    json.dump(shows, open(SHOWS_FILE, 'w'), indent=2)
+
+def get_channels():
+    """Load TV channels from file"""
+    if CHANNELS_FILE.exists():
+        with open(CHANNELS_FILE, 'r') as f:
+            return json.load(f)
+    return {}
+
+def save_channels(channels):
+    """Save TV channels to file"""
+    with open(CHANNELS_FILE, 'w') as f:
+        json.dump(channels, f, indent=2)
+
+def get_seasons():
+    """Load VOD seasons from file"""
+    if SEASONS_FILE.exists():
+        with open(SEASONS_FILE, 'r') as f:
+            return json.load(f)
+    return []
+
+def save_seasons(seasons):
+    """Save VOD seasons to file"""
+    with open(SEASONS_FILE, 'w') as f:
+        json.dump(seasons, f, indent=2)
+
+# ==================== ADMIN ROUTES ====================
+
+@admin_app.route('/api/shows/<show_id>/seasons', methods=['POST'])
+def add_season_to_show(show_id):
+    shows = get_shows()
+    data = request.get_json(force=True)
+
+    for show in shows:
+        if show["id"] == show_id:
+            show["seasons"].append({
+                "id": str(len(show["seasons"]) + 1),
+                "name": data["name"],
+                "episodes": []
+            })
+            save_shows(shows)
+            return jsonify(show), 201
+
+    return jsonify({"error": "Show not found"}), 404
+
+@admin_app.route('/api/shows', methods=['GET'])
+def list_shows():
+    return jsonify(get_shows())
+
+@admin_app.route('/api/shows/<show_id>/seasons/<season_id>/episodes', methods=['POST'])
+def add_episodes_to_show_season(show_id, season_id):
+    data = request.get_json(force=True)
+    folder = Path(data['folder_path'])
+
+    shows = get_shows()
+
+    for show in shows:
+        if show['id'] == show_id:
+            for season in show['seasons']:
+                if season['id'] == season_id:
+                    files = sorted([
+                        f for f in folder.iterdir()
+                        if f.suffix.lower() in ['.mp4', '.mkv', '.avi']
+                    ])
+
+                    season['episodes'] = [
+                        {
+                            'filename': f.name,
+                            'path': str(f)
+                        }
+                        for f in files
+                    ]
+
+                    save_shows(shows)
+                    return jsonify(season), 200
+
+    return jsonify({'error': 'Not found'}), 404
+
+
+@admin_app.route('/api/shows', methods=['POST'])
+def add_show():
+    name = request.form['name']
+    poster = request.files.get('poster')
+
+    shows = get_shows()
+    show_id = str(len(shows) + 1)
+
+    poster_filename = ''
+    if poster:
+        poster_filename = f"{show_id}_{poster.filename}"
+        poster.save(UPLOAD_DIR / poster_filename)
+
+    show = {
+        "id": show_id,
+        "name": name,
+        "poster": poster_filename,
+        "seasons": []
+    }
+
+    shows.append(show)
+    save_shows(shows)
+    return jsonify(show), 201
+
+
+@admin_app.route('/')
+def admin_panel():
+    """Admin dashboard"""
+    html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Streaming Admin Panel</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+                color: #e0e0e0;
+                min-height: 100vh;
+                padding: 2rem;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            h1 {
+                text-align: center;
+                margin-bottom: 3rem;
+                background: linear-gradient(135deg, #00d4ff, #7c3aed);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .section {
+                background: rgba(26, 31, 58, 0.8);
+                border: 1px solid rgba(124, 58, 237, 0.3);
+                border-radius: 10px;
+                padding: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            .section h2 {
+                margin-bottom: 1.5rem;
+                color: #00d4ff;
+                font-size: 1.5rem;
+            }
+
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 0.5rem;
+                color: #a0aec0;
+                font-weight: 500;
+            }
+
+            input[type="text"],
+            input[type="file"],
+            select {
+                width: 100%;
+                padding: 0.8rem;
+                background: rgba(15, 23, 42, 0.6);
+                border: 1px solid rgba(124, 58, 237, 0.5);
+                border-radius: 5px;
+                color: #e0e0e0;
+                font-size: 1rem;
+                transition: all 0.3s ease;
+            }
+
+            input[type="text"]:focus,
+            input[type="file"]:focus,
+            select:focus {
+                outline: none;
+                border-color: #00d4ff;
+                background: rgba(15, 23, 42, 0.9);
+            }
+
+            button {
+                padding: 0.8rem 1.5rem;
+                background: linear-gradient(135deg, #7c3aed, #00d4ff);
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 1rem;
+                transition: all 0.3s ease;
+            }
+
+            button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 15px rgba(124, 58, 237, 0.4);
+            }
+
+            .list-container {
+                display: grid;
+                gap: 1rem;
+            }
+
+            .item {
+                background: rgba(30, 41, 59, 0.6);
+                padding: 1.5rem;
+                border-radius: 5px;
+                border-left: 3px solid #7c3aed;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .item-info h3 {
+                margin-bottom: 0.3rem;
+                color: #00d4ff;
+            }
+
+            .item-info p {
+                color: #a0aec0;
+                font-size: 0.9rem;
+            }
+
+            .item-actions {
+                display: flex;
+                gap: 1rem;
+            }
+
+            .btn-delete {
+                background: linear-gradient(135deg, #dc2626, #991b1b);
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .btn-delete:hover {
+                box-shadow: 0 8px 15px rgba(220, 38, 38, 0.4);
+            }
+
+            .message {
+                padding: 1rem;
+                border-radius: 5px;
+                margin-bottom: 1rem;
+                display: none;
+            }
+
+            .message.success {
+                background: rgba(16, 185, 129, 0.2);
+                border: 1px solid #10b981;
+                color: #10b981;
+            }
+
+            .message.error {
+                background: rgba(239, 68, 68, 0.2);
+                border: 1px solid #ef4444;
+                color: #ef4444;
+            }
+
+            .grid-2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+
+            @media (max-width: 768px) {
+                .grid-2 {
+                    grid-template-columns: 1fr;
+                }
+
+                .item {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+
+                .item-actions {
+                    width: 100%;
+                    margin-top: 1rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🎬 Streaming Admin Panel</h1>
+
+            <!-- Message Display -->
+            <div id="message" class="message"></div>
+
+            <div class="grid-2">
+                <!-- TV CHANNELS SECTION -->
+                <div>
+                    <div class="section">
+                        <h2>📺 Add TV Channel</h2>
+                        <form onsubmit="addChannel(event)">
+                            <div class="form-group">
+                                <label for="channel-name">Channel Name:</label>
+                                <input type="text" id="channel-name" placeholder="e.g., HBO" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="channel-folder">Folder Path:</label>
+                                <input type="text" id="channel-folder" placeholder="e.g., C:\\Videos\\HBO" required>
+                            </div>
+                            <button type="submit">Add Channel</button>
+                        </form>
+                    </div>
+
+                    <div class="section">
+                        <h2>Channels</h2>
+                        <div id="channels-list" class="list-container">
+                            <p style="text-align: center; color: #a0aec0;">No channels added yet</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VOD SECTION -->
+                <div>
+                    <div class="section">
+                        <h2>🎬 Add Season to TV Show</h2>
+                        <form onsubmit="addSeasonToShow(event)">
+                            <div class="form-group">
+                                <label>TV Show</label>
+                                <select id="season-show" required></select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Season Name</label>
+                                <input type="text" id="season-name" placeholder="Season 1" required>
+                            </div>
+
+                            <button type="submit">Add Season</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📺 Add TV Show</h2>
+
+                <form onsubmit="addShow(event)">
+                    <div class="form-group">
+                        <label>Show Name</label>
+                        <input type="text" id="show-name" placeholder="That 70s Show" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Poster Image</label>
+                        <input type="file" id="show-poster" accept="image/*">
+                    </div>
+
+                    <button type="submit">Add Show</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h2>TV Shows</h2>
+                <div id="shows-list" class="list-container"></div>
+            </div>
+
+
+            <!-- Add Episodes Section -->
+            <div class="section" id="episodes-section">
+                <h2>📹 Add Episodes to Season</h2>
+                <form onsubmit="addEpisodes(event)">
+                    <div class="form-group">
+                        <label>TV Show</label>
+                        <select id="episode-show" required></select>
+                        <label>Season</label>
+                        <select id="episode-season" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="episode-folder">Folder with Episodes:</label>
+                        <input type="text" id="episode-folder" placeholder="e.g., C:\\Episodes\\Season1" required>
+                    </div>
+                    <button type="submit">Add Episodes</button>
+                </</form>
+            </div>
+        </div>
+
+        <script>
+            const ADMIN_API = 'http://10.0.0.21:5001/api'; // shows
+            const MAIN_API  = 'http://10.0.0.21:5000/api'; // channels, seasons
+
+
+            function showMessage(message, type = 'success') {
+                const msgEl = document.getElementById('message');
+                msgEl.textContent = message;
+                msgEl.className = `message ${type}`;
+                msgEl.style.display = 'block';
+                setTimeout(() => {
+                    msgEl.style.display = 'none';
+                }, 3000);
+            }
+
+            async function loadChannels() {
+                try {
+                    const response = await fetch(`${MAIN_API}/channels`)
+                    const channels = await response.json();
+                    const container = document.getElementById('channels-list');
+                    container.innerHTML = '';
+
+                    if (Object.keys(channels).length === 0) {
+                        container.innerHTML = '<p style="text-align: center; color: #a0aec0;">No channels added yet</p>';
+                        return;
+                    }
+
+                    Object.values(channels).forEach(channel => {
+                        const item = document.createElement('div');
+                        item.className = 'item';
+                        item.innerHTML = `
+                            <div class="item-info">
+                                <h3>${channel.name}</h3>
+                                <p>${channel.folder_path}</p>
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn-delete" onclick="deleteChannel('${channel.id}')">Delete</button>
+                            </div>
+                        `;
+                        container.appendChild(item);
+                    });
+                } catch (error) {
+                    console.error('Error loading channels:', error);
+                }
+            }
+
+
+            async function populateShowSelect() {
+                const res = await fetch(`${ADMIN_API}/shows`);
+                if (!res.ok) return;
+
+                const shows = await res.json();
+                const select = document.getElementById('season-show');
+                select.innerHTML = '';
+
+                shows.forEach(show => {
+                    const option = document.createElement('option');
+                    option.value = show.id;
+                    option.textContent = show.name;
+                    select.appendChild(option);
+                });
+            }
+
+
+            async function addShow(e) {
+                e.preventDefault();
+
+                const nameInput = document.getElementById('show-name');
+                const posterInput = document.getElementById('show-poster');
+
+                const name = nameInput.value.trim();
+                const poster = posterInput.files[0];
+
+                if (!name) {
+                    showMessage('Show name is required', 'error');
+                    return;
+                }
+
+                const form = new FormData();
+                form.append('name', name);
+                if (poster) form.append('poster', poster);
+
+                const res = await fetch(`${ADMIN_API}/shows`, {
+                    method: 'POST',
+                    body: form
+                });
+
+                if (res.ok) {
+                    showMessage('Show added!');
+                    nameInput.value = '';
+                    posterInput.value = '';
+                    loadShows();
+                } else {
+                    showMessage('Failed to add show', 'error');
+                }
+            }
+
+            async function populateEpisodeShows() {
+                const res = await fetch(`${ADMIN_API}/shows`);
+                if (!res.ok) return;
+
+                const shows = await res.json();
+                const showSelect = document.getElementById('episode-show');
+                showSelect.innerHTML = '<option value="">Select show</option>';
+
+                shows.forEach(show => {
+                    const opt = document.createElement('option');
+                    opt.value = show.id;
+                    opt.textContent = show.name;
+                    showSelect.appendChild(opt);
+                });
+            }
+
+            document.getElementById('episode-show').addEventListener('change', async e => {
+                const showId = e.target.value;
+                const seasonSelect = document.getElementById('episode-season');
+                seasonSelect.innerHTML = '';
+
+                const res = await fetch(`${ADMIN_API}/shows`);
+                const shows = await res.json();
+                const show = shows.find(s => s.id === showId);
+                if (!show) return;
+
+                show.seasons.forEach(season => {
+                    const opt = document.createElement('option');
+                    opt.value = season.id;
+                    opt.textContent = season.name;
+                    seasonSelect.appendChild(opt);
+                });
+
+                if (show.seasons.length === 0) {
+                    seasonSelect.innerHTML = '<option value="">No seasons yet - add one above</option>';
+                }
+            });
+
+            async function addChannel(event) {
+                event.preventDefault();
+                const name = document.getElementById('channel-name').value;
+                const folder = document.getElementById('channel-folder').value;
+
+                try {
+                    const response = await fetch(`${MAIN_API}/channels`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, folder_path: folder })
+                    });
+
+                    if (response.ok) {
+                        showMessage('Channel added successfully!');
+                        document.getElementById('channel-name').value = '';
+                        document.getElementById('channel-folder').value = '';
+                        loadChannels();
+                    } else {
+                        showMessage('Error adding channel', 'error');
+                    }
+                } catch (error) {
+                    showMessage('Error: ' + error.message, 'error');
+                }
+            }
+
+            async function deleteChannel(channelId) {
+                if (confirm('Delete this channel?')) {
+                    try {
+                        const response = await fetch(`${MAIN_API}/channels/${channelId}`, { method: 'DELETE' });
+                        if (response.ok) {
+                            showMessage('Channel deleted!');
+                            loadChannels();
+                        }
+                    } catch (error) {
+                        showMessage('Error: ' + error.message, 'error');
+                    }
+                }
+            }
+
+            async function loadShows() {
+                const res = await fetch(`${ADMIN_API}/shows`);
+                if (!res.ok) return;
+
+                const shows = await res.json();
+                const container = document.getElementById('shows-list');
+                container.innerHTML = '';
+
+                if (shows.length === 0) {
+                    container.innerHTML =
+                        '<p style="text-align:center;color:#a0aec0">No TV shows yet</p>';
+                    return;
+                }
+
+                shows.forEach(show => {
+                    const item = document.createElement('div');
+                    item.className = 'item';
+                    item.innerHTML = `
+                        <div class="item-info">
+                            <h3>${show.name}</h3>
+                            <p>${show.seasons.length} seasons</p>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+
+            async function deleteSeason(seasonId) {
+                if (confirm('Delete this season?')) {
+                    try {
+                        const response = await fetch(`${MAIN_API}/seasons/${seasonId}`, { method: 'DELETE' });
+                        if (response.ok) {
+                            showMessage('Season deleted!');
+                        }
+                    } catch (error) {
+                        showMessage('Error: ' + error.message, 'error');
+                    }
+                }
+            }
+
+            async function addSeasonToShow(event) {
+                event.preventDefault();
+
+                const showId = document.getElementById('season-show').value;
+                const name = document.getElementById('season-name').value;
+
+                const res = await fetch(`${ADMIN_API}/shows/${showId}/seasons`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ name })
+                });
+
+                if (res.ok) {
+                    showMessage('Season added!');
+                    document.getElementById('season-name').value = '';
+                    loadShows();
+                    populateShowSelect();
+                } else {
+                    showMessage('Failed to add season', 'error');
+                }
+            }
+
+
+
+            async function addEpisodes(event) {
+                event.preventDefault();
+
+                const showId = document.getElementById('episode-show').value;
+                const seasonId = document.getElementById('episode-season').value;
+                const folderPath = document.getElementById('episode-folder').value;
+
+                if (!showId || !seasonId) {
+                    showMessage('Pick a show and a season', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(
+                        `${ADMIN_API}/shows/${showId}/seasons/${seasonId}/episodes`,
+                        {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ folder_path: folderPath })
+                        }
+                    );
+
+                    if (response.ok) {
+                        showMessage('Episodes added successfully!');
+                        document.getElementById('episode-folder').value = '';
+                        loadShows(); // refresh counts
+                    } else {
+                        const txt = await response.text();
+                        showMessage('Error adding episodes: ' + txt, 'error');
+                    }
+                } catch (error) {
+                    showMessage('Error: ' + error.message, 'error');
+                }
+            }
+
+
+            // Load initial data
+            document.addEventListener('DOMContentLoaded', () => {
+                loadChannels();
+                loadShows();
+                populateShowSelect();
+                populateEpisodeShows();
+                // Refresh every 5 seconds
+                setInterval(() => {
+                    loadChannels();
+                }, 5000);
+            });
+        </script>
+    </body>
+    </html>
+    """
+    return render_template_string(html)
+
+if __name__ == '__main__':
+    admin_app.run(debug=True, host='0.0.0.0', port=5001)
+```
+
+```app.py
+from flask import Flask, jsonify, request, send_from_directory, send_file
+from flask_cors import CORS
+import json
+import os
+from pathlib import Path
+import mimetypes
+
+# make sure MIME supports subtitles
+mimetypes.add_type('text/vtt', '.vtt')
+mimetypes.add_type('application/x-subrip', '.srt')
+
+app = Flask(__name__, static_folder='../frontend', static_url_path='/')
+CORS(
+    app,
+    resources={
+        r"/api/*": {
+            "origins": "*",
+        }
+    }
+)
+
+# Data file paths
+DATA_DIR = Path(__file__).parent.parent / 'data'
+DATA_DIR.mkdir(exist_ok=True)
+CHANNELS_FILE = DATA_DIR / 'channels.json'
+SEASONS_FILE = DATA_DIR / 'seasons.json'
+
+def get_channels():
+    """Load TV channels from file"""
+    if CHANNELS_FILE.exists():
+        with open(CHANNELS_FILE, 'r') as f:
+            return json.load(f)
+    return {}
+
+def save_channels(channels):
+    """Save TV channels to file"""
+    with open(CHANNELS_FILE, 'w') as f:
+        json.dump(channels, f, indent=2)
+
+def get_seasons():
+    """Load VOD seasons from file"""
+    if SEASONS_FILE.exists():
+        with open(SEASONS_FILE, 'r') as f:
+            return json.load(f)
+    return []
+
+def save_seasons(seasons):
+    """Save VOD seasons to file"""
+    with open(SEASONS_FILE, 'w') as f:
+        json.dump(seasons, f, indent=2)
+
+def get_files_in_folder(folder_path):
+    """Get media files from a folder"""
+    video_extensions = {'.mp4', '.mkv', '.avi', '.mov', '.flv', '.wmv', '.webm'}
+    try:
+        files = [f for f in sorted(os.listdir(folder_path)) 
+                if os.path.isfile(os.path.join(folder_path, f)) 
+                and Path(f).suffix.lower() in video_extensions]
+        return files
+    except:
+        return []
+
+# ==================== TV CHANNELS ROUTES ====================
+
+@app.route('/api/channels', methods=['GET'])
+def list_channels():
+    """Get all TV channels"""
+    channels = get_channels()
+    return jsonify(channels)
+
+@app.route('/api/channels', methods=['POST'])
+def add_channel():
+    """Add a new TV channel"""
+    data = request.json
+    folder_path = data.get('folder_path')
+    channel_name = data.get('name', Path(folder_path).name)
+    
+    if not os.path.isdir(folder_path):
+        return jsonify({'error': 'Folder does not exist'}), 400
+    
+    channels = get_channels()
+    channel_id = str(len(channels) + 1)
+    
+    channels[channel_id] = {
+        'id': channel_id,
+        'name': channel_name,
+        'folder_path': folder_path
+    }
+    
+    save_channels(channels)
+    return jsonify(channels[channel_id]), 201
+
+@app.route('/api/channels/<channel_id>', methods=['DELETE'])
+def delete_channel(channel_id):
+    """Delete a TV channel"""
+    channels = get_channels()
+    if channel_id in channels:
+        del channels[channel_id]
+        save_channels(channels)
+        return jsonify({'status': 'deleted'}), 200
+    return jsonify({'error': 'Channel not found'}), 404
+
+
+@app.route('/api/channels/<channel_id>/episodes', methods=['GET'])
+def get_channel_episodes(channel_id):
+    """Get all episodes/files in a channel"""
+    channels = get_channels()
+    if channel_id not in channels:
+        return jsonify({'error': 'Channel not found'}), 404
+    
+    folder_path = channels[channel_id]['folder_path']
+    files = get_files_in_folder(folder_path)
+    
+    episodes = [{'index': i, 'filename': f, 'path': os.path.join(folder_path, f)} 
+                for i, f in enumerate(files)]
+    return jsonify(episodes), 200
+
+# ==================== VOD ROUTES ====================
+
+@app.route('/api/seasons', methods=['GET'])
+def list_seasons():
+    """Get all VOD seasons"""
+    seasons = get_seasons()
+    return jsonify(seasons)
+
+@app.route('/api/seasons', methods=['POST'])
+def add_season():
+    """Add a new VOD season"""
+    data = request.json
+    season_name = data.get('name', 'Season 1')
+    
+    seasons = get_seasons()
+    season_id = str(len(seasons) + 1)
+    
+    new_season = {
+        'id': season_id,
+        'name': season_name,
+        'episodes': []
+    }
+    
+    seasons.append(new_season)
+    save_seasons(seasons)
+    return jsonify(new_season), 201
+
+@app.route('/api/seasons/<season_id>', methods=['DELETE'])
+def delete_season(season_id):
+    """Delete a VOD season"""
+    seasons = get_seasons()
+    seasons = [s for s in seasons if s['id'] != season_id]
+    save_seasons(seasons)
+    return jsonify({'status': 'deleted'}), 200
+
+@app.route('/api/seasons/<season_id>/episodes', methods=['POST'])
+def add_episodes_to_season(season_id):
+    """Add episodes from a folder to a season"""
+    data = request.json
+    folder_path = data.get('folder_path')
+    
+    if not os.path.isdir(folder_path):
+        return jsonify({'error': 'Folder does not exist'}), 400
+    
+    seasons = get_seasons()
+    season = next((s for s in seasons if s['id'] == season_id), None)
+    
+    if not season:
+        return jsonify({'error': 'Season not found'}), 404
+    
+    files = get_files_in_folder(folder_path)
+    episode_id = len(season['episodes'])
+    
+    for filename in files:
+        episode_id += 1
+        season['episodes'].append({
+            'id': str(episode_id),
+            'filename': filename,
+            'path': os.path.join(folder_path, filename)
+        })
+    
+    save_seasons(seasons)
+    return jsonify(season), 200
+
+SHOWS_FILE = DATA_DIR / 'shows.json'
+
+def get_shows():
+    if SHOWS_FILE.exists():
+        return json.load(open(SHOWS_FILE))
+    return []
+
+def save_shows(shows):
+    json.dump(shows, open(SHOWS_FILE, 'w'), indent=2)
+
+# ==================== MEDIA SERVING ====================
+
+@app.route('/api/video/<path:video_path>', methods=['GET'])
+def serve_video(video_path):
+    from urllib.parse import unquote
+    video_path = unquote(video_path)
+
+    """Serve video files with streaming support"""
+    # Decode the path
+    video_path = video_path.replace('__SLASH__', '/')
+    
+    # Security check - ensure the file exists and is accessible
+    if not os.path.exists(video_path):
+        return jsonify({'error': 'File not found'}), 404
+    
+    # Get range request support
+    range_header = request.headers.get('Range')
+    
+    try:
+        file_size = os.path.getsize(video_path)
+        
+        if range_header:
+            # Parse range header
+            range_match = range_header.replace('bytes=', '').split('-')
+            start = int(range_match[0]) if range_match[0] else 0
+            end = int(range_match[1]) if range_match[1] else file_size - 1
+            
+            if start > file_size or end > file_size:
+                return 'Requested range not satisfiable', 416
+            
+            with open(video_path, 'rb') as f:
+                f.seek(start)
+                chunk = f.read(end - start + 1)
+            
+            mime, _ = mimetypes.guess_type(video_path)
+            mime = mime or 'application/octet-stream'
+            
+            return chunk, 206, {
+                'Content-Range': f'bytes {start}-{end}/{file_size}',
+                'Accept-Ranges': 'bytes',
+                'Content-Length': len(chunk),
+                'Content-Type': mime,
+
+                # ✅ REQUIRED FOR LAN VIDEO
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Range',
+                'Access-Control-Expose-Headers': 'Content-Range, Accept-Ranges'
+            }
+        else:
+            return send_file(video_path, mimetype='video/mp4'), 200
+    except:
+        return jsonify({'error': 'Error reading file'}), 500
+
+# ==================== FRONTEND ROUTES ====================
+
+@app.route('/')
+def index():
+    """Serve the main page"""
+    return send_from_directory('../frontend', 'index.html')
+
+@app.errorhandler(404)
+def not_found(e):
+    """Serve index for frontend routes"""
+    return send_from_directory('../frontend', 'index.html')
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
+```
+

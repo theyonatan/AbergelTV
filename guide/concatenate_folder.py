@@ -45,9 +45,6 @@ with open(output_file, "w", encoding="utf-8") as outfile:
         
         files.sort()
         for file in files:
-            if not file.endswith(".cs"):
-                continue
-            
             file_path = os.path.join(root, file)
             rel_path = os.path.relpath(file_path, folder_path)
             
