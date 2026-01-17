@@ -26,6 +26,7 @@ const app = {
             v.removeAttribute('src');
             v.load();
         });
+        document.querySelectorAll('video track').forEach(t => t.remove());
 
         // Hide all views
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
@@ -174,33 +175,33 @@ const app = {
 
         if (!video) return;
 
-        // Remove old tracks
+        // 1️⃣ Remove old <track> elements
         [...video.querySelectorAll('track')].forEach(t => t.remove());
 
-        if (!lang) {
-            return;
+        // 2️⃣ Disable ALL existing textTracks (browser keeps them!)
+        for (let i = 0; i < video.textTracks.length; i++) {
+            video.textTracks[i].mode = 'disabled';
         }
 
-        // 🔑 IMPORTANT: decode the video API path back to filesystem path
-        const videoApiSrc = video.currentSrc;
+        if (!lang) return;
+
+        const videoApiSrc = video.currentSrc || video.src;
         if (!videoApiSrc.includes('/api/video/')) return;
 
         const encodedPath = videoApiSrc.split('/api/video/')[1];
         const filePath = decodeURIComponent(encodedPath);
-
-        // Strip extension
         const basePath = filePath.replace(/\.(mp4|mkv|webm)$/i, '');
 
-        let subtitlePath;
-        if (lang === 'he') {
-            subtitlePath = `${basePath}.vtt`;
-        } else if (lang === 'en') {
-            subtitlePath = `${basePath}.en.vtt`;
-        }
+        const subtitlePath =
+            lang === 'he' ? `${basePath}.vtt`
+            : lang === 'en' ? `${basePath}.en.vtt`
+            : null;
 
-        // 🔑 Route subtitles THROUGH THE API
+        if (!subtitlePath) return;
+
         const subtitleApiUrl = `/api/video/${encodeURIComponent(subtitlePath)}`;
 
+        // 3️⃣ Create new track
         const track = document.createElement('track');
         track.kind = 'subtitles';
         track.label = lang.toUpperCase();
@@ -209,8 +210,15 @@ const app = {
         track.default = true;
 
         video.appendChild(track);
-    },
 
+        // 🔑 FORCE-enable subtitles (reliable)
+        setTimeout(() => {
+            for (let i = 0; i < video.textTracks.length; i++) {
+                const tt = video.textTracks[i];
+                tt.mode = (tt.language === lang) ? 'showing' : 'disabled';
+            }
+        }, 0);
+    },
 
     async selectSeason(season) {
         this.currentSeason = season;
@@ -308,7 +316,7 @@ class ChannelPlayer {
 
             this.video.onended = () => {
                 this.manualOverride = false;
-                this.initialize(); // re-ask “what’s live now”
+                this.nextEpisode();
             };
 
             // Start from middle episode
@@ -340,7 +348,7 @@ class ChannelPlayer {
 
             video.currentTime = startTime;
             video.play();
-
+            
             app.setSubtitle('he');
         };
 
