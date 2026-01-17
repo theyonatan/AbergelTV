@@ -355,14 +355,28 @@ body {
     width: 100vw;
     height: 100vh;
 }
+.player-controls {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.player-ui.visible .player-controls {
+    opacity: 1;
+    pointer-events: auto;
+}
 
 
 .vod-ui {
-    opacity: 1 !important;
+    opacity: 0;
+    transition: opacity 0.3s ease;
     background: transparent;
     pointer-events: auto;
     inset: 0;
     padding: 0;
+}
+.vod-ui.visible {
+    opacity: 1;
 }
 
 .vod-ui .back-top {

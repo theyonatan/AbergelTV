@@ -108,10 +108,15 @@
                 <video id="vod-video" class="player-video"></video>
 
                 <div class="player-ui visible vod-ui">
-                <div class="back-top">
-                    <button class="back-btn" onclick="app.goToEpisodes()">← Back</button>
-                    <button class="back-btn" onclick="app.toggleVODFullscreen()">⛶ Fullscreen</button>
-                </div>
+                    <div class="player-controls">
+                        <button class="control-btn" onclick="app.previousVODEpisode()">⏮ Previous</button>
+                        <button class="control-btn" onclick="app.nextVODEpisode()">Next ⏭</button>
+                    </div>
+
+                    <div class="back-top" style="display:flex; gap:1rem;">
+                        <button class="back-btn" onclick="app.goToEpisodes()">← Back</button>
+                        <button class="back-btn" onclick="app.toggleVODFullscreen()">⛶ Fullscreen</button>
+                    </div>
                 </div>
             </div>
         </div>

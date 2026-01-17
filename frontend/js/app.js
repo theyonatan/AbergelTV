@@ -80,6 +80,36 @@ const app = {
         this.renderShows(shows);
     },
 
+    nextVODEpisode() {
+        if (!this.currentSeason) return;
+
+        const episodes = this.currentSeason.episodes;
+        if (!episodes.length) return;
+
+        this.currentVODEpisodeIndex =
+            (this.currentVODEpisodeIndex + 1) % episodes.length;
+
+        this.playVODEpisode(
+            episodes[this.currentVODEpisodeIndex],
+            this.currentVODEpisodeIndex
+        );
+    },
+
+    previousVODEpisode() {
+        if (!this.currentSeason) return;
+
+        const episodes = this.currentSeason.episodes;
+        if (!episodes.length) return;
+
+        this.currentVODEpisodeIndex =
+            (this.currentVODEpisodeIndex - 1 + episodes.length) % episodes.length;
+
+        this.playVODEpisode(
+            episodes[this.currentVODEpisodeIndex],
+            this.currentVODEpisodeIndex
+        );
+    },
+
     renderShows(shows) {
         const grid = document.getElementById('shows-grid');
         grid.innerHTML = '';
@@ -247,12 +277,13 @@ const app = {
                 <h4>Episode ${index + 1}</h4>
                 <p>${episode.filename}</p>
             `;
-            card.onclick = () => this.playVODEpisode(episode);
+            card.onclick = () => this.playVODEpisode(episode, index);
             container.appendChild(card);
         });
     },
 
-    async playVODEpisode(episode) {
+    async playVODEpisode(episode, index) {
+        this.currentVODEpisodeIndex = index;
         this.showView('vod-player');
 
         const video = document.getElementById('vod-video');
@@ -263,7 +294,18 @@ const app = {
 
         video.onloadedmetadata = () => {
             video.currentTime = 0;
-            video.play();          // ✅ THIS WAS MISSING
+            video.play();
+
+            // auto fullscreen for VOD
+            setTimeout(() => {
+                if (!document.fullscreenElement) {
+                    document
+                    .querySelector('#vod-player .player-container')
+                    ?.requestFullscreen()
+                    .catch(() => {});
+                }
+            }, 0);
+            
             app.setSubtitle('he');
         };
     },
@@ -286,7 +328,12 @@ const app = {
         let liveTimeout;
 
         document.addEventListener('mousemove', () => {
-            const playerUI = document.querySelector('.player-ui');
+            const playerUI = app.currentView === 'channel-player'
+                ? document.querySelector('#channel-player .player-ui')
+                : app.currentView === 'vod-player'
+                    ? document.querySelector('#vod-player .player-ui')
+                    : null;
+
             const liveIndicator = document.getElementById('live-indicator');
 
             // Show cursor
@@ -370,6 +417,17 @@ class ChannelPlayer {
 
             video.currentTime = startTime;
             video.play();
+
+            
+            // ✅ auto fullscreen for Live TV
+            setTimeout(() => {
+                if (!document.fullscreenElement) {
+                    document
+                    .querySelector('#channel-player .player-container')
+                    ?.requestFullscreen()
+                    .catch(() => {});
+                }
+            }, 0);
             
             app.setSubtitle('he');
         };
