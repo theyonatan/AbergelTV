@@ -20,6 +20,9 @@ const app = {
 
     // View Management
     showView(viewName) {
+        // 🔑 Always exit fullscreen when changing views
+        exitFullscreenIfNeeded();
+        
         // Stop any playing videos when switching views
         document.querySelectorAll('video').forEach(v => {
             v.pause();
@@ -394,6 +397,12 @@ class ChannelPlayer {
         this.manualOverride = true;
         this.currentIndex = (this.currentIndex - 1 + this.episodes.length) % this.episodes.length;
         this.playCurrentEpisode();
+    }
+}
+
+function exitFullscreenIfNeeded() {
+    if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
     }
 }
 
