@@ -383,6 +383,12 @@ body {
     pointer-events: auto;
 }
 
+/* Allow native controls interaction in VOD */
+#vod-player .player-ui {
+    pointer-events: none;
+}
+
+
 /* Subtitle controls — put them bottom-left or bottom-center */
 .subtitle-controls {
     position: absolute;
