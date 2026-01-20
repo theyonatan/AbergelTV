@@ -7,7 +7,9 @@ structure:
       - app.js
   - posters
       - 1_that70sposter.jpg
+      - 2_HowIMetYourPoster.jpg
       - 2_that70sposter.jpg
+      - 3_BigBangPoster.png
 
 ```index.html
 <!DOCTYPE html>
@@ -117,13 +119,18 @@ structure:
         <!-- VOD Player View -->
         <div id="vod-player" class="view hidden">
             <div class="player-container">
-                <div id="live-indicator" class="live-indicator">
-                ● LIVE
-                </div>
                 <video id="vod-video" class="player-video" controls></video>
-                <div class="player-ui vod-ui">
-                </div>
-                <button class="back-btn back-top" onclick="app.goToEpisodes()">← Back</button>
+
+                <div class="player-ui visible vod-ui">
+                    <div class="player-controls">
+                        <button class="control-btn" onclick="app.previousVODEpisode()">⏮ Previous</button>
+                        <button class="control-btn" onclick="app.nextVODEpisode()">Next ⏭</button>
+                    </div>
+
+                    <div class="back-top" style="display:flex; gap:1rem;">
+                        <button class="back-btn" onclick="app.goToEpisodes()">← Back</button>
+                        <button class="back-btn" onclick="app.toggleVODFullscreen()">⛶ Fullscreen</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -492,19 +499,39 @@ body {
     width: 100vw;
     height: 100vh;
 }
+.player-controls {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.player-ui.visible .player-controls {
+    opacity: 1;
+    pointer-events: auto;
+}
 
 
 .vod-ui {
-    opacity: 1 !important;
+    opacity: 0;
+    transition: opacity 0.3s ease;
     background: transparent;
-    pointer-events: none;
+    pointer-events: auto;
     inset: 0;
     padding: 0;
+}
+.vod-ui.visible {
+    opacity: 1;
 }
 
 .vod-ui .back-top {
     pointer-events: auto;
 }
+
+/* Allow native controls interaction in VOD */
+#vod-player .player-ui {
+    pointer-events: none;
+}
+
 
 /* Subtitle controls — put them bottom-left or bottom-center */
 .subtitle-controls {
@@ -577,25 +604,49 @@ body {
     cursor: none;
 }
 
+/* ==================== SHOWS GRID (VOD) ==================== */
+
+.shows-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+/* Improved responsive poster card */
 .show-card {
-  position: relative;
-  width: 180px;
-  height: 270px;
-  background-size: cover;
-  background-position: center;
-  border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2 / 3; /* Standard TV poster ratio */
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease;
+}
+
+.show-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 30px rgba(124, 58, 237, 0.6);
+    z-index: 10;
 }
 
 .show-card .title {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  padding: 8px;
-  background: rgba(0,0,0,0.6);
-  color: white;
-  text-align: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem 1rem 1rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    color: white;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 600;
+    transition: opacity 0.3s ease;
 }
 ```
 
@@ -675,11 +726,41 @@ const app = {
 
     async goToVOD() {
         this.showView('shows-view');
-        const res = await fetch('http://10.0.0.21:5001/api/shows');
+        const res = await fetch(`${this.apiUrl}/shows`);
         if (!res.ok) throw new Error('Failed to load shows');
         const text = await res.text();
         const shows = JSON.parse(text);
         this.renderShows(shows);
+    },
+
+    nextVODEpisode() {
+        if (!this.currentSeason) return;
+
+        const episodes = this.currentSeason.episodes;
+        if (!episodes.length) return;
+
+        this.currentVODEpisodeIndex =
+            (this.currentVODEpisodeIndex + 1) % episodes.length;
+
+        this.playVODEpisode(
+            episodes[this.currentVODEpisodeIndex],
+            this.currentVODEpisodeIndex
+        );
+    },
+
+    previousVODEpisode() {
+        if (!this.currentSeason) return;
+
+        const episodes = this.currentSeason.episodes;
+        if (!episodes.length) return;
+
+        this.currentVODEpisodeIndex =
+            (this.currentVODEpisodeIndex - 1 + episodes.length) % episodes.length;
+
+        this.playVODEpisode(
+            episodes[this.currentVODEpisodeIndex],
+            this.currentVODEpisodeIndex
+        );
     },
 
     renderShows(shows) {
@@ -689,11 +770,12 @@ const app = {
         shows.forEach(show => {
             const card = document.createElement('div');
             card.className = 'show-card';
-            card.innerHTML = `
-                <img src="http://10.0.0.21:5000/posters/${show.poster}">
-                <div class="show-title">${show.name}</div>
-            `;
+            card.style.backgroundImage =
+            `url(http://10.0.0.21:5000/posters/${show.poster})`;
+
+            card.innerHTML = `<div class="title">${show.name}</div>`;
             card.onclick = () => this.selectShow(show);
+
             grid.appendChild(card);
         });
     },
@@ -848,20 +930,50 @@ const app = {
                 <h4>Episode ${index + 1}</h4>
                 <p>${episode.filename}</p>
             `;
-            card.onclick = () => this.playVODEpisode(episode);
+            card.onclick = () => this.playVODEpisode(episode, index);
             container.appendChild(card);
         });
     },
 
-    async playVODEpisode(episode) {
+    async playVODEpisode(episode, index) {
+        this.currentVODEpisodeIndex = index;
         this.showView('vod-player');
+
         const video = document.getElementById('vod-video');
         const videoPath = episode.path.replace(/\\/g, '__SLASH__');
+
+        video.pause();
         video.src = `${this.apiUrl}/video/${videoPath}`;
+
         video.onloadedmetadata = () => {
+            video.currentTime = 0;
+            video.play();
+
+            // auto fullscreen for VOD
+            setTimeout(() => {
+                if (!document.fullscreenElement) {
+                    document
+                    .querySelector('#vod-player .player-container')
+                    ?.requestFullscreen()
+                    .catch(() => {});
+                }
+            }, 0);
+            
             app.setSubtitle('he');
         };
     },
+
+    toggleVODFullscreen() {
+        const container = document.querySelector('#vod-player .player-container');
+        if (!container) return;
+
+        if (!document.fullscreenElement) {
+            container.requestFullscreen().catch(() => {});
+        } else {
+            document.exitFullscreen();
+        }
+    },
+
 
     // Event Listeners
     attachEventListeners() {
@@ -869,7 +981,12 @@ const app = {
         let liveTimeout;
 
         document.addEventListener('mousemove', () => {
-            const playerUI = document.querySelector('.player-ui');
+            const playerUI = app.currentView === 'channel-player'
+                ? document.querySelector('#channel-player .player-ui')
+                : app.currentView === 'vod-player'
+                    ? document.querySelector('#vod-player .player-ui')
+                    : null;
+
             const liveIndicator = document.getElementById('live-indicator');
 
             // Show cursor
@@ -953,6 +1070,17 @@ class ChannelPlayer {
 
             video.currentTime = startTime;
             video.play();
+
+            
+            // ✅ auto fullscreen for Live TV
+            setTimeout(() => {
+                if (!document.fullscreenElement) {
+                    document
+                    .querySelector('#channel-player .player-container')
+                    ?.requestFullscreen()
+                    .catch(() => {});
+                }
+            }, 0);
             
             app.setSubtitle('he');
         };
@@ -1018,7 +1146,15 @@ document.addEventListener('DOMContentLoaded', () => {
 # Could not read file (binary or encoding issue)
 ```
 
+```posters\2_HowIMetYourPoster.jpg
+# Could not read file (binary or encoding issue)
+```
+
 ```posters\2_that70sposter.jpg
+# Could not read file (binary or encoding issue)
+```
+
+```posters\3_BigBangPoster.png
 # Could not read file (binary or encoding issue)
 ```
 

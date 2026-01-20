@@ -901,6 +901,7 @@ def add_episodes_to_season(season_id):
 
 SHOWS_FILE = DATA_DIR / 'shows.json'
 
+
 def get_shows():
     if SHOWS_FILE.exists():
         return json.load(open(SHOWS_FILE))
@@ -910,6 +911,12 @@ def save_shows(shows):
     json.dump(shows, open(SHOWS_FILE, 'w'), indent=2)
 
 # ==================== MEDIA SERVING ====================
+
+@app.route('/api/shows', methods=['GET'])
+def list_shows_main():
+    if SHOWS_FILE.exists():
+        return jsonify(json.load(open(SHOWS_FILE)))
+    return jsonify([])
 
 @app.route('/api/video/<path:video_path>', methods=['GET'])
 def serve_video(video_path):

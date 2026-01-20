@@ -225,5 +225,40 @@
         ]
       }
     ]
+  },
+  {
+    "id": "2",
+    "name": "How I met your mother",
+    "poster": "2_HowIMetYourPoster.jpg",
+    "seasons": [
+      {
+        "id": "1",
+        "name": "Season 4",
+        "episodes": [
+          {
+            "filename": "How.I.Met.Your.Mother.4x01.Do.I.Know.You.ITA.ENG.1080p.DLMux.x264-Fratposa.mp4",
+            "path": "C:\\Users\\Yonatan\\Desktop\\Ground2\\that\\outputHow I Met Your Mother S04e01-24\\How.I.Met.Your.Mother.4x01.Do.I.Know.You.ITA.ENG.1080p.DLMux.x264-Fratposa.mp4"
+          },
+          {
+            "filename": "How.I.Met.Your.Mother.4x02.The.Best.Burger.in.New.York.ITA.ENG.1080p.DLMux.x264-Fratposa.mp4",
+            "path": "C:\\Users\\Yonatan\\Desktop\\Ground2\\that\\outputHow I Met Your Mother S04e01-24\\How.I.Met.Your.Mother.4x02.The.Best.Burger.in.New.York.ITA.ENG.1080p.DLMux.x264-Fratposa.mp4"
+          },
+          {
+            "filename": "How.I.Met.Your.Mother.4x03.I.Heart.NJ.ITA.ENG.1080p.DLMux.x264-Fratposa.mp4",
+            "path": "C:\\Users\\Yonatan\\Desktop\\Ground2\\that\\outputHow I Met Your Mother S04e01-24\\How.I.Met.Your.Mother.4x03.I.Heart.NJ.ITA.ENG.1080p.DLMux.x264-Fratposa.mp4"
+          },
+          {
+            "filename": "How.I.Met.Your.Mother.4x04.Intervention.ITA.ENG.1080p.DLMux.x264-Fratposa.mp4",
+            "path": "C:\\Users\\Yonatan\\Desktop\\Ground2\\that\\outputHow I Met Your Mother S04e01-24\\How.I.Met.Your.Mother.4x04.Intervention.ITA.ENG.1080p.DLMux.x264-Fratposa.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "name": "The Big Bang Theory",
+    "poster": "3_BigBangPoster.png",
+    "seasons": []
   }
 ]

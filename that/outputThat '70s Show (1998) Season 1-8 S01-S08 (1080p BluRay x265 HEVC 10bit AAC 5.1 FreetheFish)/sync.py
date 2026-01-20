@@ -17,10 +17,10 @@ for mp4 in folder.glob("*.mp4"):
 
     print(f"Syncing: {mp4.name}")
     subprocess.run([
-        "ffsubsync",
+        "alass",
         str(mp4),
-        "-i", str(srt),
-        "-o", str(srt)
+        str(srt),
+        str(srt)
     ], check=True)
 
 print("Done.")
