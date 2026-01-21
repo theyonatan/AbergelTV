@@ -7,6 +7,10 @@ const app = {
     currentSeason: null,
     channelPlayer: null,
     vodPlayer: null,
+    autoplayNextEpisode: true,
+    autoplayPopupTimer: null,
+    autoplayCountdownTimer: null,
+
 
     // Initialize app
     async init() {
@@ -20,8 +24,15 @@ const app = {
 
     // View Management
     showView(viewName) {
-        // 🔑 Always exit fullscreen when changing views
-        exitFullscreenIfNeeded();
+        // 🔑 Exit fullscreen only when leaving players
+        if (
+            document.fullscreenElement &&
+            viewName !== 'vod-player' &&
+            viewName !== 'channel-player'
+        ) {
+            exitFullscreenIfNeeded();
+        }
+
         
         // Stop any playing videos when switching views
         document.querySelectorAll('video').forEach(v => {
@@ -282,7 +293,24 @@ const app = {
         });
     },
 
+    onVODEnded(video) {
+        this.hideNextEpisodePopup();
+
+        if (this.autoplayNextEpisode) {
+            this.nextVODEpisode();
+        }
+    },
+
+    onVODSeeking() {
+        this.hideNextEpisodePopup();
+    },
+
+
     async playVODEpisode(episode, index) {
+        clearInterval(this.autoplayCountdownTimer);
+        clearTimeout(this.autoplayPopupTimer);
+        this.hideNextEpisodePopup();
+
         this.currentVODEpisodeIndex = index;
         this.showView('vod-player');
 
@@ -292,21 +320,34 @@ const app = {
         video.pause();
         video.src = `${this.apiUrl}/video/${videoPath}`;
 
+        video.removeEventListener('ended', this._vodEndedHandler);
+        video.removeEventListener('seeking', this._vodSeekingHandler);
+
+        this._vodEndedHandler = this.onVODEnded.bind(this, video);
+        this._vodSeekingHandler = this.onVODSeeking.bind(this);
+
+        video.addEventListener('ended', this._vodEndedHandler);
+        video.addEventListener('seeking', this._vodSeekingHandler);
+
+
         video.onloadedmetadata = () => {
             video.currentTime = 0;
             video.play();
 
-            // auto fullscreen for VOD
+            // ✅ ALWAYS re-enter fullscreen (manual + autoplay)
             setTimeout(() => {
-                if (!document.fullscreenElement) {
-                    document
-                    .querySelector('#vod-player .player-container')
-                    ?.requestFullscreen()
-                    .catch(() => {});
+                const container =
+                    document.querySelector('#vod-player .player-container');
+
+                if (container && !document.fullscreenElement) {
+                    container.requestFullscreen().catch(() => {});
                 }
-            }, 0);
-            
+            }, 50);
+
             app.setSubtitle('he');
+
+            // 🔁 restart autoplay countdown for this episode
+            this.setupAutoplayCountdown(video);
         };
     },
 
@@ -319,6 +360,84 @@ const app = {
         } else {
             document.exitFullscreen();
         }
+    },
+
+    toggleAutoplay() {
+        this.autoplayNextEpisode = !this.autoplayNextEpisode;
+
+        const btn = document.getElementById('autoplay-toggle');
+        if (!btn) return;
+
+        if (this.autoplayNextEpisode) {
+            btn.textContent = '✓ Autoplay';
+            btn.classList.remove('off');
+        } else {
+            btn.textContent = '✕ Autoplay';
+            btn.classList.add('off');
+            this.hideNextEpisodePopup();
+        }
+    },
+
+    setupAutoplayCountdown(video) {
+        clearInterval(this.autoplayCountdownTimer);
+        this.hideNextEpisodePopup();
+
+        if (!this.autoplayNextEpisode) return;
+
+        const POPUP_THRESHOLD = 10; // seconds
+
+        this.autoplayCountdownTimer = setInterval(() => {
+            if (!this.autoplayNextEpisode) {
+                this.hideNextEpisodePopup();
+                return;
+            }
+
+            if (video.paused || !video.duration) {
+                this.hideNextEpisodePopup();
+                return;
+            }
+
+            const remaining = Math.ceil(video.duration - video.currentTime);
+
+            // 🔥 SEEK / SCRUB FIX
+            if (remaining > POPUP_THRESHOLD) {
+                this.hideNextEpisodePopup();
+                return;
+            }
+
+            if (remaining <= 0) {
+                this.hideNextEpisodePopup();
+                return;
+            }
+
+            const nextIndex =
+                (this.currentVODEpisodeIndex + 1) %
+                this.currentSeason.episodes.length;
+
+            const nextEp = this.currentSeason.episodes[nextIndex];
+            this.showNextEpisodePopup(nextEp.filename, remaining);
+        }, 250);
+    },
+
+    showNextEpisodePopup(title, seconds) {
+        const popup = document.getElementById('next-episode-popup');
+        if (!popup) return;
+
+        popup.innerHTML = `
+            Starting next episode:<br>
+            <strong>${title}</strong><br>
+            in ${seconds}s
+        `;
+
+        popup.classList.add('visible');
+        popup.classList.remove('hidden');
+    },
+
+    hideNextEpisodePopup() {
+        const popup = document.getElementById('next-episode-popup');
+        if (!popup) return;
+
+        popup.classList.remove('visible');
     },
 
 

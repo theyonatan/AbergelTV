@@ -400,6 +400,42 @@ body {
     z-index: 50;
 }
 
+/* ==================== NEXT EPISODE POPUP ==================== */
+
+.next-episode-popup {
+    position: absolute;
+    bottom: 90px;
+    right: 30px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(124, 58, 237, 0.6);
+    border-radius: 10px;
+    padding: 1rem 1.4rem;
+    font-size: 0.95rem;
+    color: #e0e0e0;
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.35);
+    transform: translateX(120%);
+    transition: transform 0.4s ease, opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.next-episode-popup.visible {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.next-episode-popup strong {
+    color: #00d4ff;
+}
+
+/* Autoplay toggle OFF state */
+#autoplay-toggle.off {
+    background: rgba(239, 68, 68, 0.6);
+    border-color: #ef4444;
+    color: white;
+}
+
+
 /* ==================== SCROLLBAR ==================== */
 
 ::-webkit-scrollbar {

@@ -111,6 +111,7 @@
                     <div class="player-controls">
                         <button class="control-btn" onclick="app.previousVODEpisode()">⏮ Previous</button>
                         <button class="control-btn" onclick="app.nextVODEpisode()">Next ⏭</button>
+                        <button id="autoplay-toggle" class="control-btn" onclick="app.toggleAutoplay()">✓ Autoplay</button>
                     </div>
 
                     <div class="back-top" style="display:flex; gap:1rem;">
@@ -118,6 +119,8 @@
                         <button class="back-btn" onclick="app.toggleVODFullscreen()">⛶ Fullscreen</button>
                     </div>
                 </div>
+
+                <div id="next-episode-popup" class="next-episode-popup hidden"></div>
             </div>
         </div>
     </div>

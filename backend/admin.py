@@ -80,6 +80,19 @@ def add_season_to_show(show_id):
 def list_shows():
     return jsonify(get_shows())
 
+@admin_app.route('/api/shows/<show_id>', methods=['DELETE'])
+def delete_show(show_id):
+    shows = get_shows()
+    before = len(shows)
+
+    shows = [s for s in shows if s["id"] != show_id]
+
+    if len(shows) == before:
+        return jsonify({"error": "Show not found"}), 404
+
+    save_shows(shows)
+    return jsonify({"status": "deleted"}), 200
+
 @admin_app.route('/api/shows/<show_id>/seasons/<season_id>/episodes', methods=['POST'])
 def add_episodes_to_show_season(show_id, season_id):
     data = request.get_json(force=True)
@@ -621,6 +634,24 @@ def admin_panel():
                 }
             }
 
+            async function deleteShow(showId, showName) {
+                if (!confirm(`Delete TV show "${showName}" and ALL its seasons?`)) return;
+
+                const res = await fetch(`${ADMIN_API}/shows/${showId}`, {
+                    method: 'DELETE'
+                });
+
+                if (res.ok) {
+                    showMessage('TV show deleted');
+                    loadShows();
+                    populateShowSelect();
+                    populateEpisodeShows();
+                    populateRemoveSeasonShows();
+                } else {
+                    showMessage('Failed to delete show', 'error');
+                }
+            }
+
 
             async function addShow(e) {
                 e.preventDefault();
@@ -754,7 +785,16 @@ def admin_panel():
                             <h3>${show.name}</h3>
                             <p>${show.seasons.length} seasons</p>
                         </div>
+                        <div class="item-actions">
+                            <button
+                                class="btn-delete"
+                                onclick="deleteShow('${show.id}', '${show.name.replace(/'/g, "\\'")}')"
+                            >
+                                Delete
+                            </button>
+                        </div>
                     `;
+
                     container.appendChild(item);
                 });
             }
