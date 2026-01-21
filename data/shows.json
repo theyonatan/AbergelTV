@@ -6,8 +6,215 @@
     "seasons": [
       {
         "id": "1",
+        "name": "Season 5",
+        "episodes": [
+          {
+            "filename": "That '70s Show (1998) - S05E01 - Going to California (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E01 - Going to California (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E02 - I Can't Quit You Baby (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E02 - I Can't Quit You Baby (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E03 - What Is and What Should Never Be (1) (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E03 - What Is and What Should Never Be (1) (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E04 - Heartbreaker (2) (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E04 - Heartbreaker (2) (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E05 - Ramble On (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E05 - Ramble On (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E06 - Over the Hills and Far Away (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E06 - Over the Hills and Far Away (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E07 - Hot Dog (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E07 - Hot Dog (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E08 - Thank You (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E08 - Thank You (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E09 - Black Dog (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E09 - Black Dog (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E10 - The Crunge (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E10 - The Crunge (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E11 - The Girl I Love (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E11 - The Girl I Love (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E12 - Misty Mountain Hop (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E12 - Misty Mountain Hop (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E13 - Your Time Is Gonna Come (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E13 - Your Time Is Gonna Come (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E14 - Babe I'm Gonna Leave You (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E14 - Babe I'm Gonna Leave You (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E15 - When the Levee Breaks (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E15 - When the Levee Breaks (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E16 - Whole Lotta Love (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E16 - Whole Lotta Love (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E17 - The Battle of Evermore (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E17 - The Battle of Evermore (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E18 - Hey Hey What Can I Do (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E18 - Hey Hey What Can I Do (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E19 - Bring It on Home (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E19 - Bring It on Home (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E20 - No Quarter (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E20 - No Quarter (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E21 - Trampled Under Foot (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E21 - Trampled Under Foot (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E22 - You Shook Me (1) (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E22 - You Shook Me (1) (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E23 - Nobody's Fault But Mine (2) (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E23 - Nobody's Fault But Mine (2) (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E24 - The Immigrant Song (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E24 - The Immigrant Song (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S05E25 - Celebration Day (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 5\\That '70s Show (1998) - S05E25 - Celebration Day (1080p BluRay x265 FreetheFish).mp4"
+          }
+        ]
+      },
+      {
+        "id": "2",
         "name": "Season 6",
-        "episodes": []
+        "episodes": [
+          {
+            "filename": "That '70s Show (1998) - S06E01 - The Kids Are Alright (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E01 - The Kids Are Alright (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E02 - Join Together (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E02 - Join Together (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E03 - Magic Bus (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E03 - Magic Bus (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E04 - The Acid Queen (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E04 - The Acid Queen (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E05 - I'm Free (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E05 - I'm Free (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E06 - We're Not Gonna Take It (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E06 - We're Not Gonna Take It (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E07 - Christmas (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E07 - Christmas (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E08 - I'm a Boy (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E08 - I'm a Boy (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E09 - Young Man Blues (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E09 - Young Man Blues (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E10 - A Legal Matter (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E10 - A Legal Matter (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E11 - I Can See for Miles (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E11 - I Can See for Miles (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E12 - Sally Simpson (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E12 - Sally Simpson (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E13 - Won't Get Fooled Again (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E13 - Won't Get Fooled Again (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E14 - Baby Don't You Do It (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E14 - Baby Don't You Do It (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E15 - Who Are You (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E15 - Who Are You (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E16 - Man with Money (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E16 - Man with Money (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E17 - Happy Jack (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E17 - Happy Jack (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E18 - Do You Think It's Alright (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E18 - Do You Think It's Alright (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E19 - Substitute (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E19 - Substitute (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E20 - Squeezebox (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E20 - Squeezebox (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E21 - 515 (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E21 - 515 (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E22 - Sparks (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E22 - Sparks (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E23 - My Wife (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E23 - My Wife (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E24 - Going Mobile (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E24 - Going Mobile (1080p BluRay x265 FreetheFish).mp4"
+          },
+          {
+            "filename": "That '70s Show (1998) - S06E25 - The Seeker (1080p BluRay x265 FreetheFish).mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\outputThat '70s Show (1998) Season 1-8 S01-S08 (1080p BluRay x265 HEVC 10bit AAC 5.1 FreetheFish)\\Season 6\\That '70s Show (1998) - S06E25 - The Seeker (1080p BluRay x265 FreetheFish).mp4"
+          }
+        ]
       }
     ]
   },
@@ -21,6 +228,24 @@
     "id": "3",
     "name": "The Big Bang Theory",
     "poster": "3_BigBangPoster.png",
+    "seasons": []
+  },
+  {
+    "id": "5",
+    "name": "Friends",
+    "poster": "5_friendsPoster.png",
+    "seasons": []
+  },
+  {
+    "id": "6",
+    "name": "Stranger Things",
+    "poster": "6_strangerposter.png",
+    "seasons": []
+  },
+  {
+    "id": "6",
+    "name": "Attack On Titan",
+    "poster": "6_AttackOnPoster.png",
     "seasons": []
   }
 ]

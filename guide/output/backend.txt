@@ -116,6 +116,25 @@ def add_episodes_to_show_season(show_id, season_id):
 
     return jsonify({'error': 'Not found'}), 404
 
+@admin_app.route('/api/shows/<show_id>/seasons/<season_id>', methods=['DELETE'])
+def delete_season_from_show(show_id, season_id):
+    shows = get_shows()
+
+    for show in shows:
+        if show["id"] == show_id:
+            before = len(show["seasons"])
+            show["seasons"] = [
+                s for s in show["seasons"] if s["id"] != season_id
+            ]
+
+            if len(show["seasons"]) == before:
+                return jsonify({"error": "Season not found"}), 404
+
+            save_shows(shows)
+            return jsonify({"status": "deleted"}), 200
+
+    return jsonify({"error": "Show not found"}), 404
+
 
 @admin_app.route('/api/shows', methods=['POST'])
 def add_show():
@@ -283,6 +302,22 @@ def admin_panel():
                 box-shadow: 0 8px 15px rgba(220, 38, 38, 0.4);
             }
 
+            button:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+            }
+
+            #remove-season-btn:not(:disabled) {
+                box-shadow: 0 0 18px rgba(239, 68, 68, 0.9);
+                animation: dangerPulse 1.2s infinite;
+            }
+
+            @keyframes dangerPulse {
+                0%   { box-shadow: 0 0 10px rgba(239,68,68,0.5); }
+                50%  { box-shadow: 0 0 22px rgba(239,68,68,1); }
+                100% { box-shadow: 0 0 10px rgba(239,68,68,0.5); }
+            }
+
             .message {
                 padding: 1rem;
                 border-radius: 5px;
@@ -375,6 +410,30 @@ def admin_panel():
 
                             <button type="submit">Add Season</button>
                         </form>
+                    </div>
+
+                    <!-- 🗑 REMOVE SEASON -->
+                    <div class="section">
+                        <h2>🗑 Remove Season</h2>
+
+                        <div class="form-group">
+                            <label>TV Show</label>
+                            <select id="remove-season-show"></select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Season</label>
+                            <select id="remove-season-season" disabled></select>
+                        </div>
+
+                        <button
+                            id="remove-season-btn"
+                            class="btn-delete"
+                            disabled
+                            onclick="removeSeason()"
+                        >
+                            Remove Season
+                        </button>
                     </div>
                 </div>
             </div>
@@ -483,6 +542,90 @@ def admin_panel():
                     option.textContent = show.name;
                     select.appendChild(option);
                 });
+            }
+
+            async function populateRemoveSeasonShows() {
+                const res = await fetch(`${ADMIN_API}/shows`);
+                if (!res.ok) return;
+
+                const shows = await res.json();
+                const showSelect = document.getElementById('remove-season-show');
+                const seasonSelect = document.getElementById('remove-season-season');
+
+                showSelect.innerHTML = '<option value="">Select show</option>';
+                seasonSelect.innerHTML = '';
+                seasonSelect.disabled = true;
+                disableRemoveButton();
+
+                shows.forEach(show => {
+                    const opt = document.createElement('option');
+                    opt.value = show.id;
+                    opt.textContent = show.name;
+                    showSelect.appendChild(opt);
+                });
+            }
+
+            document.getElementById('remove-season-show').addEventListener('change', async e => {
+                const showId = e.target.value;
+                const seasonSelect = document.getElementById('remove-season-season');
+
+                seasonSelect.innerHTML = '';
+                seasonSelect.disabled = true;
+                disableRemoveButton();
+
+                if (!showId) return;
+
+                const res = await fetch(`${ADMIN_API}/shows`);
+                const shows = await res.json();
+                const show = shows.find(s => s.id === showId);
+                if (!show || show.seasons.length === 0) return;
+
+                seasonSelect.disabled = false;
+                seasonSelect.innerHTML = '<option value="">Select season</option>';
+
+                show.seasons.forEach(season => {
+                    const opt = document.createElement('option');
+                    opt.value = season.id;
+                    opt.textContent = season.name;
+                    seasonSelect.appendChild(opt);
+                });
+            });
+
+            document.getElementById('remove-season-season').addEventListener('change', e => {
+                if (e.target.value) enableRemoveButton();
+                else disableRemoveButton();
+            });
+
+            function enableRemoveButton() {
+                const btn = document.getElementById('remove-season-btn');
+                btn.disabled = false;
+            }
+
+            function disableRemoveButton() {
+                const btn = document.getElementById('remove-season-btn');
+                btn.disabled = true;
+            }
+
+            async function removeSeason() {
+                const showId = document.getElementById('remove-season-show').value;
+                const seasonId = document.getElementById('remove-season-season').value;
+
+                if (!showId || !seasonId) return;
+
+                if (!confirm('Delete this season and all its episodes?')) return;
+
+                const res = await fetch(
+                    `${ADMIN_API}/shows/${showId}/seasons/${seasonId}`,
+                    { method: 'DELETE' }
+                );
+
+                if (res.ok) {
+                    showMessage('Season deleted');
+                    populateRemoveSeasonShows();
+                    loadShows();
+                } else {
+                    showMessage('Failed to delete season', 'error');
+                }
             }
 
 
@@ -702,6 +845,7 @@ def admin_panel():
                 loadShows();
                 populateShowSelect();
                 populateEpisodeShows();
+                populateRemoveSeasonShows();
                 // Refresh every 5 seconds
                 setInterval(() => {
                     loadChannels();

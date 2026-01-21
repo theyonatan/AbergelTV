@@ -10,6 +10,9 @@ structure:
       - 2_HowIMetYourPoster.jpg
       - 2_that70sposter.jpg
       - 3_BigBangPoster.png
+      - 4_AttackOnPoster.png
+      - 5_FriendsPoster.jpg
+      - 6_friendsPoster.png
 
 ```index.html
 <!DOCTYPE html>
@@ -125,6 +128,7 @@ structure:
                     <div class="player-controls">
                         <button class="control-btn" onclick="app.previousVODEpisode()">⏮ Previous</button>
                         <button class="control-btn" onclick="app.nextVODEpisode()">Next ⏭</button>
+                        <button id="autoplay-toggle" class="control-btn" onclick="app.toggleAutoplay()">✓ Autoplay</button>
                     </div>
 
                     <div class="back-top" style="display:flex; gap:1rem;">
@@ -132,6 +136,8 @@ structure:
                         <button class="back-btn" onclick="app.toggleVODFullscreen()">⛶ Fullscreen</button>
                     </div>
                 </div>
+
+                <div id="next-episode-popup" class="next-episode-popup hidden"></div>
             </div>
         </div>
     </div>
@@ -544,6 +550,42 @@ body {
     z-index: 50;
 }
 
+/* ==================== NEXT EPISODE POPUP ==================== */
+
+.next-episode-popup {
+    position: absolute;
+    bottom: 90px;
+    right: 30px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(124, 58, 237, 0.6);
+    border-radius: 10px;
+    padding: 1rem 1.4rem;
+    font-size: 0.95rem;
+    color: #e0e0e0;
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.35);
+    transform: translateX(120%);
+    transition: transform 0.4s ease, opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.next-episode-popup.visible {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.next-episode-popup strong {
+    color: #00d4ff;
+}
+
+/* Autoplay toggle OFF state */
+#autoplay-toggle.off {
+    background: rgba(239, 68, 68, 0.6);
+    border-color: #ef4444;
+    color: white;
+}
+
+
 /* ==================== SCROLLBAR ==================== */
 
 ::-webkit-scrollbar {
@@ -660,6 +702,10 @@ const app = {
     currentSeason: null,
     channelPlayer: null,
     vodPlayer: null,
+    autoplayNextEpisode: true,
+    autoplayPopupTimer: null,
+    autoplayCountdownTimer: null,
+
 
     // Initialize app
     async init() {
@@ -673,8 +719,15 @@ const app = {
 
     // View Management
     showView(viewName) {
-        // 🔑 Always exit fullscreen when changing views
-        exitFullscreenIfNeeded();
+        // 🔑 Exit fullscreen only when leaving players
+        if (
+            document.fullscreenElement &&
+            viewName !== 'vod-player' &&
+            viewName !== 'channel-player'
+        ) {
+            exitFullscreenIfNeeded();
+        }
+
         
         // Stop any playing videos when switching views
         document.querySelectorAll('video').forEach(v => {
@@ -935,7 +988,24 @@ const app = {
         });
     },
 
+    onVODEnded(video) {
+        this.hideNextEpisodePopup();
+
+        if (this.autoplayNextEpisode) {
+            this.nextVODEpisode();
+        }
+    },
+
+    onVODSeeking() {
+        this.hideNextEpisodePopup();
+    },
+
+
     async playVODEpisode(episode, index) {
+        clearInterval(this.autoplayCountdownTimer);
+        clearTimeout(this.autoplayPopupTimer);
+        this.hideNextEpisodePopup();
+
         this.currentVODEpisodeIndex = index;
         this.showView('vod-player');
 
@@ -945,21 +1015,34 @@ const app = {
         video.pause();
         video.src = `${this.apiUrl}/video/${videoPath}`;
 
+        video.removeEventListener('ended', this._vodEndedHandler);
+        video.removeEventListener('seeking', this._vodSeekingHandler);
+
+        this._vodEndedHandler = this.onVODEnded.bind(this, video);
+        this._vodSeekingHandler = this.onVODSeeking.bind(this);
+
+        video.addEventListener('ended', this._vodEndedHandler);
+        video.addEventListener('seeking', this._vodSeekingHandler);
+
+
         video.onloadedmetadata = () => {
             video.currentTime = 0;
             video.play();
 
-            // auto fullscreen for VOD
+            // ✅ ALWAYS re-enter fullscreen (manual + autoplay)
             setTimeout(() => {
-                if (!document.fullscreenElement) {
-                    document
-                    .querySelector('#vod-player .player-container')
-                    ?.requestFullscreen()
-                    .catch(() => {});
+                const container =
+                    document.querySelector('#vod-player .player-container');
+
+                if (container && !document.fullscreenElement) {
+                    container.requestFullscreen().catch(() => {});
                 }
-            }, 0);
-            
+            }, 50);
+
             app.setSubtitle('he');
+
+            // 🔁 restart autoplay countdown for this episode
+            this.setupAutoplayCountdown(video);
         };
     },
 
@@ -972,6 +1055,84 @@ const app = {
         } else {
             document.exitFullscreen();
         }
+    },
+
+    toggleAutoplay() {
+        this.autoplayNextEpisode = !this.autoplayNextEpisode;
+
+        const btn = document.getElementById('autoplay-toggle');
+        if (!btn) return;
+
+        if (this.autoplayNextEpisode) {
+            btn.textContent = '✓ Autoplay';
+            btn.classList.remove('off');
+        } else {
+            btn.textContent = '✕ Autoplay';
+            btn.classList.add('off');
+            this.hideNextEpisodePopup();
+        }
+    },
+
+    setupAutoplayCountdown(video) {
+        clearInterval(this.autoplayCountdownTimer);
+        this.hideNextEpisodePopup();
+
+        if (!this.autoplayNextEpisode) return;
+
+        const POPUP_THRESHOLD = 10; // seconds
+
+        this.autoplayCountdownTimer = setInterval(() => {
+            if (!this.autoplayNextEpisode) {
+                this.hideNextEpisodePopup();
+                return;
+            }
+
+            if (video.paused || !video.duration) {
+                this.hideNextEpisodePopup();
+                return;
+            }
+
+            const remaining = Math.ceil(video.duration - video.currentTime);
+
+            // 🔥 SEEK / SCRUB FIX
+            if (remaining > POPUP_THRESHOLD) {
+                this.hideNextEpisodePopup();
+                return;
+            }
+
+            if (remaining <= 0) {
+                this.hideNextEpisodePopup();
+                return;
+            }
+
+            const nextIndex =
+                (this.currentVODEpisodeIndex + 1) %
+                this.currentSeason.episodes.length;
+
+            const nextEp = this.currentSeason.episodes[nextIndex];
+            this.showNextEpisodePopup(nextEp.filename, remaining);
+        }, 250);
+    },
+
+    showNextEpisodePopup(title, seconds) {
+        const popup = document.getElementById('next-episode-popup');
+        if (!popup) return;
+
+        popup.innerHTML = `
+            Starting next episode:<br>
+            <strong>${title}</strong><br>
+            in ${seconds}s
+        `;
+
+        popup.classList.add('visible');
+        popup.classList.remove('hidden');
+    },
+
+    hideNextEpisodePopup() {
+        const popup = document.getElementById('next-episode-popup');
+        if (!popup) return;
+
+        popup.classList.remove('visible');
     },
 
 
@@ -1155,6 +1316,18 @@ document.addEventListener('DOMContentLoaded', () => {
 ```
 
 ```posters\3_BigBangPoster.png
+# Could not read file (binary or encoding issue)
+```
+
+```posters\4_AttackOnPoster.png
+# Could not read file (binary or encoding issue)
+```
+
+```posters\5_FriendsPoster.jpg
+# Could not read file (binary or encoding issue)
+```
+
+```posters\6_friendsPoster.png
 # Could not read file (binary or encoding issue)
 ```
 
