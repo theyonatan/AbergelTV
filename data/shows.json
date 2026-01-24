@@ -246,6 +246,102 @@
     "id": "6",
     "name": "Attack On Titan",
     "poster": "6_AttackOnPoster.png",
-    "seasons": []
+    "seasons": [
+      {
+        "id": "1",
+        "name": "Season 4",
+        "episodes": [
+          {
+            "filename": "[Anime Time] Attack on Titan - 64.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 64.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 65.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 65.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 66.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 66.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 67.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 67.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 68.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 68.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 69.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 69.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 70.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 70.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 71.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 71.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 72.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 72.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 73.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 73.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 74.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 74.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 75.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 75.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 76.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 76.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 77.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 77.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 78.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 78.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 79.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 79.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 80.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 80.mp4"
+          },
+          {
+            "filename": "[Anime Time] Attack on Titan - 86.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\attack on titan\\Season 4\\[Anime Time] Attack on Titan - 86.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "7",
+    "name": "Poirot",
+    "poster": "7_PosterOnTheOrientExpress.jpg",
+    "seasons": [
+      {
+        "id": "1",
+        "name": "Season 12",
+        "episodes": [
+          {
+            "filename": "Murder on the Orient Express.mp4",
+            "path": "D:\\.New\\otherProjects\\Ground2\\that\\Poirot\\12\\Murder on the Orient Express.mp4"
+          }
+        ]
+      }
+    ]
   }
 ]
